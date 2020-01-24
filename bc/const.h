@@ -1,7 +1,6 @@
-/* const.h: Constants for bc. */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991, 1992, 1993, 1994, 1997 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -28,6 +27,7 @@
        
 *************************************************************************/
 
+/* const.h: Constants for bc. */
 
 /* Define INT_MAX and LONG_MAX if not defined.  Assuming 32 bits... */
 
@@ -57,11 +57,11 @@
 
 /* Definitions for arrays. */
 
-#define BC_DIM_MAX    65535       /* this should be NODE_SIZE^NODE_DEPTH-1 */
+#define BC_DIM_MAX   16777215     /* this should be NODE_SIZE^NODE_DEPTH-1 */
 
-#define   NODE_SIZE        16     /* Must be a power of 2. */
-#define   NODE_MASK       0xf     /* Must be NODE_SIZE-1. */
-#define   NODE_SHIFT        4     /* Number of 1 bits in NODE_MASK. */
+#define   NODE_SIZE        64     /* Must be a power of 2. */
+#define   NODE_MASK      0x3f     /* Must be NODE_SIZE-1. */
+#define   NODE_SHIFT        6     /* Number of 1 bits in NODE_MASK. */
 #define   NODE_DEPTH        4
 
 
@@ -88,7 +88,6 @@
 #define FUNCT    2
 #define FUNCTDEF 3
 
-#define EXTERN extern
 #ifdef __STDC__
 #define CONST const
 #define VOID  void

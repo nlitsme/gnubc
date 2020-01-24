@@ -1,7 +1,6 @@
-/* load.c:  This code "loads" code into the code segments. */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991-1994, 1997, 2000 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -28,8 +27,9 @@
        
 *************************************************************************/
 
+/* load.c:  This code "loads" code into the code segments. */
+
 #include "bcdefs.h"
-#include "global.h"
 #include "proto.h"
 
 /* Load variables. */
@@ -52,7 +52,7 @@ init_load ()
 /* addbyte adds one BYTE to the current code segment. */
 void
 addbyte (byte)
-     char byte;
+     int byte;
 {
   int pc;
   bc_function *f;
@@ -75,7 +75,7 @@ addbyte (byte)
     }
 
   /* Store the byte. */
-  f->f_body[pc] = byte;
+  f->f_body[pc] = (char) (byte & 0xff);
   f->f_code_size++;
 }
 
@@ -156,7 +156,7 @@ load_code (code)
   long  label_no;
   long  vaf_name;	/* variable, array or function number. */
   long  func;
-  program_counter save_adr;
+  static program_counter save_adr;
 
   /* Initialize. */
   str = code;

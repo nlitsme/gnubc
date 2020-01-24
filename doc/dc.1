@@ -2,7 +2,7 @@
 .\" dc.1 - the *roff document processor source for the dc manual
 .\"
 .\" This file is part of GNU dc.
-.\" Copyright (C) 1994, 1997, 1998, 2000 Free Software Foundation, Inc.
+.\" Copyright (C) 1994, 1997, 1998, 2000, 2001, 2005, 2006 Free Software Foundation, Inc.
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program; see the file COPYING.  If not, write to:
 .\"   The Free Software Foundation, Inc.
-.\"   59 Temple Place, Suite 330
-.\"   Boston, MA 02111 USA
+.\"   51 Franklin Street, Fifth Floor
+.\"   Boston, MA 02110-1301  USA
 .\"
-.TH DC 1 "1997-03-25" "GNU Project"
+.TH DC 1 "2006-04-29" "GNU Project"
 .ds dc \fIdc\fP
 .ds Dc \fIDc\fP
 .SH NAME
@@ -48,7 +48,14 @@ Arithmetic operations pop arguments off the stack and push the results.
 .PP
 To enter a number in
 .IR dc ,
-type the digits with an optional decimal point.
+type the digits
+(using upper case letters
+.I A
+through
+.I F
+as "digits" when working
+with input bases greater than ten),
+with an optional decimal point.
 Exponential notation is not supported.
 To enter a negative number,
 begin the number with ``_''.
@@ -93,7 +100,8 @@ be processed.
 A file name of
 .B -
 refers to the standard input stream.
-The standard input will processed if no file names are specified.
+The standard input will processed if no script files or
+expressions are specified.
 .PD
 .SH
 Printing Commands
@@ -114,9 +122,14 @@ Otherwise it is a number, and the integer portion of its absolute
 value is printed out as a "base (UCHAR_MAX+1)" byte stream.
 Assuming that (UCHAR_MAX+1) is 256
 (as it is on most machines with 8-bit bytes),
-the sequence \fBKSK 0k1/ [_1*]sx d0>x [256~aPd0<x]dsxx sxLKk\fP
-could also accomplish this function,
-except for the side-effect of clobbering the x register.
+the sequence \fBKSK0k1/_1Ss [ls*]Sxd0>x
+[256~Ssd0<x]dsxxsx[q]Sq[Lsd0>qaPlxx]
+dsxxsx0sqLqsxLxLK+k\fP
+could also accomplish this function.
+(Much of the complexity of the above native-dc code is due
+to the ~ computing the characters backwards,
+and the desire to ensure that all registers wind up back
+in their original states.)
 .TP
 .B f
 Prints the entire contents of the stack
@@ -219,6 +232,7 @@ Thus, ``4d*p'' computes 4 squared and prints it.
 .TP
 .B r
 Reverses the order of (swaps) the top two values on the stack.
+(This can also be accomplished with the sequence \fBSaSbLaLb\fP.)
 .SH
 Registers
 .PP
@@ -311,8 +325,9 @@ Pushes the current precision on the stack.
 .SH
 Strings
 .PP
-\*(Dc can operate on strings as well as on numbers.
-The only things you can do with strings are
+\*(Dc has a limited ability to operate on strings
+as well as on numbers;
+the only things you can do with strings are
 print them and execute them as macros
 (which means that the contents of the string are processed as
 \*(dc commands).
@@ -437,6 +452,10 @@ Pops a value off the stack,
 calculates the number of digits it has
 (or number of characters, if it is a string)
 and pushes that number.
+The digit count for a number does
+.I not
+include any leading zeros,
+even if those appear to the right of the radix point.
 .TP
 .B X
 Pops a value off the stack,

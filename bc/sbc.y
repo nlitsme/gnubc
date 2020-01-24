@@ -17,8 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with this program; see the file COPYING.  If not, write to
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      51 Franklin Street, Fifth Floor
+      Boston, MA 02110-1301  USA
+
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -82,22 +83,22 @@ program			: /* empty */
 			    {
 			      $$ = 0;
 			      std_only = TRUE;
-			      if (interactive)
+			      if (interactive && !quiet)
 				{
-				  printf ("s%s\n", BC_VERSION);
-				  welcome();
+				  show_bc_version ();
+				  welcome ();
 				}
 			    }
 			| program input_item
 			;
 input_item		: semicolon_list ENDOFLINE
-			    { run_code(); }
+			    { run_code (); }
 			| function
-			    { run_code(); }
+			    { run_code (); }
 			| error ENDOFLINE
 			    {
 			      yyerrok; 
-			      init_gen() ;
+			      init_gen () ;
 			    }
 			;
 semicolon_list		: /* empty */
@@ -119,7 +120,7 @@ statement_or_error	: statement
 			    { $$ = $2; }
 			;
 statement 		: Warranty
-			    { warranty("s"); }
+			    { warranty ("s"); }
 			| expression
 			    {
 			      if ($1 & 1)
@@ -145,7 +146,7 @@ statement 		: Warranty
 				}
 			    }
 			| Quit
-			    { exit(0); }
+			    { exit (0); }
 			| Return
 			    { generate ("0R"); }
 			| Return '(' return_expression ')'
@@ -217,10 +218,14 @@ statement 		: Warranty
 			;
 function 		: Define NAME '(' opt_parameter_list ')' '{'
        			  ENDOFLINE opt_auto_define_list 
-			    {
+			    { char *params, *autos;
 			      check_params ($4,$8);
-			      sprintf (genstr, "F%d,%s.%s[", lookup($2,FUNCT),
-				       arg_str ($4), arg_str ($8));
+			      params = arg_str ($4);
+			      autos = arg_str ($8);
+			      set_genstr_size (30 + strlen (params)
+					       + strlen (autos));
+			      sprintf (genstr, "F%d,%s.%s[", lookup ($2,FUNCT),
+				       params, autos);
 			      generate (genstr);
 			      free_args ($4);
 			      free_args ($8);
@@ -238,9 +243,9 @@ opt_parameter_list	: /* empty */
 			| parameter_list
 			;
 parameter_list 		: NAME
-			    { $$ = nextarg (NULL, lookup($1,SIMPLE), FALSE); }
+			    { $$ = nextarg (NULL, lookup ($1,SIMPLE), FALSE); }
 			| define_list ',' NAME
-			    { $$ = nextarg ($1, lookup($3,SIMPLE), FALSE); }
+			    { $$ = nextarg ($1, lookup ($3,SIMPLE), FALSE); }
 			;
 opt_auto_define_list 	: /* empty */ 
 			    { $$ = NULL; }
@@ -250,13 +255,13 @@ opt_auto_define_list 	: /* empty */
 			    { $$ = $2; } 
 			;
 define_list 		: NAME
-			    { $$ = nextarg (NULL, lookup($1,SIMPLE), FALSE); }
+			    { $$ = nextarg (NULL, lookup ($1,SIMPLE), FALSE); }
 			| NAME '[' ']'
-			    { $$ = nextarg (NULL, lookup($1,ARRAY), FALSE); }
+			    { $$ = nextarg (NULL, lookup ($1,ARRAY), FALSE); }
 			| define_list ',' NAME
-			    { $$ = nextarg ($1, lookup($3,SIMPLE), FALSE); }
+			    { $$ = nextarg ($1, lookup ($3,SIMPLE), FALSE); }
 			| define_list ',' NAME '[' ']'
-			    { $$ = nextarg ($1, lookup($3,ARRAY), FALSE); }
+			    { $$ = nextarg ($1, lookup ($3,ARRAY), FALSE); }
 			;
 opt_argument_list	: /* empty */
 			    { $$ = NULL; }
@@ -352,7 +357,7 @@ expression		: named_expression ASSIGN_OP
 			    }
 			| NUMBER
 			    {
-			      int len = strlen($1);
+			      int len = strlen ($1);
 			      $$ = 1;
 			      if (len == 1 && *$1 == '0')
 				generate ("0");
@@ -375,13 +380,14 @@ expression		: named_expression ASSIGN_OP
 			    {
 			      $$ = 1;
 			      if ($3 != NULL)
-				{ 
-				  sprintf (genstr, "C%d,%s:", lookup($1,FUNCT),
-					   arg_str ($3));
+				{ char *params = call_str ($3);
+				  set_genstr_size (20 + strlen (params));
+				  sprintf (genstr, "C%d,%s:",
+					   lookup ($1,FUNCT), params);
 				  free_args ($3);
 				}
 			      else
-				  sprintf (genstr, "C%d:", lookup($1,FUNCT));
+				  sprintf (genstr, "C%d:", lookup ($1,FUNCT));
 			      generate (genstr);
 			    }
 			| INCR_DECR named_expression
@@ -434,9 +440,9 @@ expression		: named_expression ASSIGN_OP
 			    { generate ("cS"); $$ = 1;}
 			;
 named_expression	: NAME
-			    { $$ = lookup($1,SIMPLE); }
+			    { $$ = lookup ($1,SIMPLE); }
 			| NAME '[' expression ']'
-			    { $$ = lookup($1,ARRAY); }
+			    { $$ = lookup ($1,ARRAY); }
 			| Ibase
 			    { $$ = 0; }
 			| Obase

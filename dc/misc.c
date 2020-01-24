@@ -1,7 +1,7 @@
 /* 
  * misc. functions for the "dc" Desk Calculator language.
  *
- * Copyright (C) 1994, 1997, 1998, 2000 Free Software Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2000, 2006 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
  * along with this program; if not, you can either send email to this
  * program's author (see below) or write to:
  *   The Free Software Foundation, Inc.
- *   59 Temple Place, Suite 330
- *   Boston, MA 02111 USA
+ *   51 Franklin Street, Fifth Floor
+ *   Boston, MA 02110-1301  USA
  */
 
-/* This module contains miscelaneous functions that have no
+/* This module contains miscellaneous functions that have no
  * special knowledge of any private data structures.
- * They could all be moved to their own separate modules, but
- * are agglomerated here for convenience.
+ * They could each be moved to their own separate modules,
+ * but are aggregated here as a matter of convenience.
  */
 
 #include "config.h"
@@ -70,7 +70,7 @@ dc_malloc DC_DECLARG((len))
 {
 	void *result = malloc(len);
 
-	if (!result)
+	if (result == NULL)
 		dc_memfail();
 	return result;
 }
@@ -88,9 +88,9 @@ dc_show_id DC_DECLARG((fp, id, suffix))
 	const char *suffix DC_DECLEND
 {
 	if (isgraph(id))
-		fprintf(fp, "'%c' (%#o)%s", id, id, suffix);
+		fprintf(fp, "'%c' (%#o)%s", (unsigned int) id, id, suffix);
 	else
-		fprintf(fp, "%#o%s", id, suffix);
+		fprintf(fp, "%#o%s", (unsigned int) id, suffix);
 }
 
 
@@ -134,8 +134,8 @@ dc_system DC_DECLARG((s))
 	size_t len;
 
 	p = strchr(s, '\n');
-	if (p) {
-		len = p - s;
+	if (p != NULL) {
+		len = (size_t) (p - s);
 		tmpstr = dc_malloc(len + 1);
 		strncpy(tmpstr, s, len);
 		tmpstr[len] = '\0';
@@ -177,3 +177,12 @@ dc_dup DC_DECLARG((value))
 	/*else*/
 	return dc_dup_str(value.v.string);
 }
+
+
+/*
+ * Local Variables:
+ * mode: C
+ * tab-width: 4
+ * End:
+ * vi: set ts=4 :
+ */

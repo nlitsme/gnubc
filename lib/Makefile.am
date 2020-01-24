@@ -1,5 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 noinst_LIBRARIES = libbc.a
+bin_PROGRAMS = testmul
 
 INCLUDES = -I. -I.. -I$(srcdir)/../h
 
@@ -7,7 +8,7 @@ libbc_a_SOURCES = getopt.c getopt1.c vfprintf.c number.c
 
 DEFS = @DEFS@ $(DEFSADD)
 
-CFLAGS = @CFLAGS@ -Wall -funsigned-char
+AM_CFLAGS = @CFLAGS@
 
 MAINTAINERCLEANFILES = Makefile.in number.c
 
@@ -16,7 +17,7 @@ newnumber.o: number.c muldigits.h
 
 muldigits.h: testmul
 	@echo "The following may take up to 10 minutes."
-	testmul > muldigits.h
+	./testmul > muldigits.h
 
 testmul: testmul.o number.o
 	$(CC) $(CFLAGS) -o testmul testmul.o number.o

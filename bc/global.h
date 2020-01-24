@@ -1,7 +1,6 @@
-/* global.h:  The global variables for bc.  */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991, 1992, 1993, 1994, 1997 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -28,6 +27,7 @@
        
 *************************************************************************/
 
+/* global.h:  The global variables for bc.  */
 
 /* The current break level's lable. */
 EXTERN int break_label;
@@ -42,7 +42,8 @@ EXTERN int continue_label;
 EXTERN int next_label;
 
 /* Byte code character storage.  Used in many places for generation of code. */
-EXTERN char genstr[80];
+EXTERN char  *genstr  INIT(NULL);
+EXTERN int    genlen  INIT(0);
 
 /* Count of characters printed to the output in compile_only mode. */
 EXTERN int out_count;
@@ -52,25 +53,25 @@ EXTERN int out_count;
 EXTERN char did_gen;
 
 /* Is this run an interactive execution.  (Is stdin a terminal?) */
-EXTERN char interactive;
+EXTERN char interactive  INIT(FALSE);
 
 /* Just generate the byte code.  -c flag. */
-EXTERN int compile_only;
+EXTERN int compile_only INIT(FALSE);
 
 /* Load the standard math functions.  -l flag. */
-EXTERN int use_math;
+EXTERN int use_math  INIT(FALSE);
 
 /* Give a warning on use of any non-standard feature (non-POSIX).  -w flag. */
-EXTERN int warn_not_std;
+EXTERN int warn_not_std  INIT(FALSE);
 
 /* Accept POSIX bc only!  -s flag. */
-EXTERN int std_only;
+EXTERN int std_only  INIT(FALSE);
 
 /* Don't print the banner at start up.  -q flag. */
-EXTERN int quiet;
+EXTERN int quiet  INIT(FALSE);
 
 /* The list of file names to process. */
-EXTERN file_node *file_names;
+EXTERN file_node *file_names  INIT(NULL);
 
 /* The name of the current file being processed. */
 EXTERN char *file_name;
@@ -113,7 +114,7 @@ EXTERN int n_history;
 
 #if defined(LIBEDIT)
 /* LIBEDIT data */
-EditLine *edit;
+EditLine *edit INIT(NULL);
 History  *hist;
 HistEvent histev;
 #endif

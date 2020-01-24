@@ -1,7 +1,6 @@
-/* util.c: Utility routines for bc. */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991-1994, 1997, 2000 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -28,6 +27,7 @@
        
 *************************************************************************/
 
+/* util.c: Utility routines for bc. */
 
 #include "bcdefs.h"
 #ifndef VARARGS
@@ -35,7 +35,6 @@
 #else
 #include <varargs.h>
 #endif
-#include "global.h"
 #include "proto.h"
 
 
@@ -237,6 +236,19 @@ check_params ( params, autos )
     }
 }
 
+/* genstr management to avoid buffer overflow. */
+void
+set_genstr_size (size)
+     int size;
+{
+  if (size > genlen) {
+    if (genstr != NULL)
+      free(genstr);
+    genstr = (char *) bc_malloc (size);
+    genlen = size;
+  }
+}
+
 
 /* Initialize the code generator the parser. */
 
@@ -254,6 +266,7 @@ init_gen ()
     init_load ();
   had_error = FALSE;
   did_gen = FALSE;
+  set_genstr_size (64);
 }
 
 
@@ -320,7 +333,7 @@ out_char (ch)
   else
     {
       out_col++;
-      if (out_col == line_size-1)
+      if (out_col == line_size-1 && line_size != 0)
 	{
 	  putchar ('\\');
 	  putchar ('\n');
@@ -349,7 +362,7 @@ out_schar (ch)
       if (!std_only)
 	{
 	  out_col++;
-	  if (out_col == line_size-1)
+	  if (out_col == line_size-1 && line_size != 0)
 	    {
 	      putchar ('\\');
 	      putchar ('\n');
@@ -418,50 +431,50 @@ int insert_id_rec (root, new_id)
 	  /* The height increased. */
 	  (*root)->balance --;
 	  
-      switch ((*root)->balance)
-	{
-	case  0:  /* no height increase. */
-	  return (FALSE);
-	case -1:  /* height increase. */
-	  return (FALSE);
-	case -2:  /* we need to do a rebalancing act. */
-	  A = *root;
-	  B = (*root)->left;
-	  if (B->balance <= 0)
+	  switch ((*root)->balance)
 	    {
-	      /* Single Rotate. */
-	      A->left = B->right;
-	      B->right = A;
-	      *root = B;
-	      A->balance = 0;
-	      B->balance = 0;
-	    }
-	  else
-	    {
-	      /* Double Rotate. */
-	      *root = B->right;
-	      B->right = (*root)->left;
-	      A->left = (*root)->right;
-	      (*root)->left = B;
-	      (*root)->right = A;
-	      switch ((*root)->balance)
+	    case  0:  /* no height increase. */
+	      return (FALSE);
+	    case -1:  /* height increase. */
+	      return (TRUE);
+	    case -2:  /* we need to do a rebalancing act. */
+	      A = *root;
+	      B = (*root)->left;
+	      if (B->balance <= 0)
 		{
-		case -1:
-		  A->balance = 1;
-		  B->balance = 0;
-		  break;
-		case  0:
+		  /* Single Rotate. */
+		  A->left = B->right;
+		  B->right = A;
+		  *root = B;
 		  A->balance = 0;
 		  B->balance = 0;
-		  break;
-		case  1:
-		  A->balance = 0;
-		  B->balance = -1;
-		  break;
 		}
-	      (*root)->balance = 0;
-	    }
-	}     
+	      else
+		{
+		  /* Double Rotate. */
+		  *root = B->right;
+		  B->right = (*root)->left;
+		  A->left = (*root)->right;
+		  (*root)->left = B;
+		  (*root)->right = A;
+		  switch ((*root)->balance)
+		    {
+		    case -1:
+		      A->balance = 1;
+		      B->balance = 0;
+		      break;
+		    case  0:
+		      A->balance = 0;
+		      B->balance = 0;
+		      break;
+		    case  1:
+		      A->balance = 0;
+		      B->balance = -1;
+		      break;
+		    }
+		  (*root)->balance = 0;
+		}
+	    }     
 	} 
     }
   else
@@ -471,12 +484,13 @@ int insert_id_rec (root, new_id)
 	{
 	  /* The height increased. */
 	  (*root)->balance ++;
+
 	  switch ((*root)->balance)
 	    {
 	    case 0:  /* no height increase. */
 	      return (FALSE);
 	    case 1:  /* height increase. */
-	      return (FALSE);
+	      return (TRUE);
 	    case 2:  /* we need to do a rebalancing act. */
 	      A = *root;
 	      B = (*root)->right;
@@ -574,11 +588,11 @@ lookup (name, namekind)
 	  return (-id->a_name);
 	}
       id->a_name = next_array++;
-      a_names[id->a_name] = name;
       if (id->a_name < MAX_STORE)
 	{
 	  if (id->a_name >= a_count)
 	    more_arrays ();
+	  a_names[id->a_name] = name;
 	  return (-id->a_name);
 	}
       yyerror ("Too many array variables");
@@ -595,11 +609,11 @@ lookup (name, namekind)
 	  return (id->f_name);
 	}
       id->f_name = next_func++;
-      f_names[id->f_name] = name;
       if (id->f_name < MAX_STORE)
 	{
 	  if (id->f_name >= f_count)
 	    more_functions ();
+          f_names[id->f_name] = name;
 	  return (id->f_name);
 	}
       yyerror ("Too many functions");
@@ -612,11 +626,11 @@ lookup (name, namekind)
 	  return (id->v_name);
 	}
       id->v_name = next_var++;
-      v_names[id->v_name - 1] = name;
       if (id->v_name <= MAX_STORE)
 	{
 	  if (id->v_name >= v_count)
 	    more_variables ();
+          v_names[id->v_name - 1] = name;
 	  return (id->v_name);
 	}
       yyerror ("Too many variables");
@@ -626,48 +640,6 @@ lookup (name, namekind)
   yyerror ("End of util.c/lookup() reached.  Please report this bug.");
   exit (1);
   /* not reached */
-}
-
-
-/* Print the welcome banner. */
-
-void 
-welcome()
-{
-  printf ("This is free software with ABSOLUTELY NO WARRANTY.\n");
-  printf ("For details type `warranty'. \n");
-}
-
-/* Print out the version information. */
-void
-show_bc_version()
-{
-  printf("%s %s\n%s\n", PACKAGE, VERSION, BC_COPYRIGHT);
-}
-
-
-/* Print out the warranty information. */
-
-void 
-warranty(prefix)
-     char *prefix;
-{
-  printf ("\n%s", prefix);
-  show_bc_version ();
-  printf ("\n"
-"    This program is free software; you can redistribute it and/or modify\n"
-"    it under the terms of the GNU General Public License as published by\n"
-"    the Free Software Foundation; either version 2 of the License , or\n"
-"    (at your option) any later version.\n\n"
-"    This program is distributed in the hope that it will be useful,\n"
-"    but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-"    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-"    GNU General Public License for more details.\n\n"
-"    You should have received a copy of the GNU General Public License\n"
-"    along with this program. If not, write to\n\n"
-"       The Free Software Foundation, Inc.\n"
-"       59 Temple Place, Suite 330\n"
-"       Boston, MA 02111, USA.\n\n");
 }
 
 /* Print out the limits of this program. */
@@ -689,13 +661,13 @@ limits()
 /* bc_malloc will check the return value so all other places do not
    have to do it!  SIZE is the number of bytes to allocate. */
 
-char *
+void *
 bc_malloc (size)
      int size;
 {
-  char *ptr;
+  void *ptr;
 
-  ptr = (char *) malloc (size);
+  ptr = (void *) malloc (size);
   if (ptr == NULL)
     out_of_memory ();
 
@@ -785,7 +757,7 @@ warn (mesg, va_alist)
 	name = "(standard_in)";
       else
 	name = file_name;
-      fprintf (stderr,"%s %d: ",name,line_no);
+      fprintf (stderr,"%s %d: Error: ",name,line_no);
       vfprintf (stderr, mesg, args);
       fprintf (stderr, "\n");
       had_error = TRUE;

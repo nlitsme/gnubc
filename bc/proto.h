@@ -1,7 +1,6 @@
-/* proto.h: Prototype function definitions for "external" functions. */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991-1994, 1997, 2000 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -27,6 +26,8 @@
                 Bellingham, WA 98226-9062
        
 *************************************************************************/
+
+/* proto.h: Prototype function definitions for "external" functions. */
 
 /* For the pc version using k&r ACK. (minix1.5 and earlier.) */
 #ifdef SHORTNAMES
@@ -61,9 +62,9 @@
 _PROTOTYPE(void stop_execution, (int));
 _PROTOTYPE(unsigned char byte, (program_counter *pc));
 _PROTOTYPE(void execute, (void));
-_PROTOTYPE(char prog_char, (void));
-_PROTOTYPE(char input_char, (void));
-_PROTOTYPE(void push_constant, (char (*in_char)(void), int conv_base));
+_PROTOTYPE(int prog_char, (void));
+_PROTOTYPE(int input_char, (void));
+_PROTOTYPE(void push_constant, (int (*in_char)(void), int conv_base));
 _PROTOTYPE(void push_b10_const, (program_counter *pc));
 _PROTOTYPE(void assign, (int c_code));
 
@@ -74,6 +75,7 @@ _PROTOTYPE(char *arg_str, (arg_list *args));
 _PROTOTYPE(char *call_str, (arg_list *args));
 _PROTOTYPE(void free_args, (arg_list *args));
 _PROTOTYPE(void check_params, (arg_list *params, arg_list *autos));
+_PROTOTYPE(void set_genstr_size, (int));
 _PROTOTYPE(void init_gen, (void));
 _PROTOTYPE(void generate, (char *str));
 _PROTOTYPE(void run_code, (void));
@@ -83,7 +85,7 @@ _PROTOTYPE(id_rec *find_id, (id_rec *tree, char *id));
 _PROTOTYPE(int insert_id_rec, (id_rec **root, id_rec *new_id));
 _PROTOTYPE(void init_tree, (void));
 _PROTOTYPE(int lookup, (char *name, int namekind));
-_PROTOTYPE(char *bc_malloc, (int));
+_PROTOTYPE(void *bc_malloc, (int));
 _PROTOTYPE(void out_of_memory, (void));
 _PROTOTYPE(void welcome, (void));
 _PROTOTYPE(void warranty, (char *));

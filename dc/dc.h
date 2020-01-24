@@ -1,4 +1,4 @@
-/* 
+/*
  * Header file for dc routines
  *
  * Copyright (C) 1994, 1997, 1998 Free Software Foundation, Inc.
@@ -18,8 +18,8 @@
  * program's author (see below) or write to:
  *
  *    The Free Software Foundation, Inc.
- *    59 Temple Place, Suite 330
- *    Boston, MA 02111 USA
+ *    51 Franklin Street, Fifth Floor
+ *    Boston, MA 02110-1301  USA
  */
 
 #ifndef DC_DEFS_H

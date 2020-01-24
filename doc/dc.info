@@ -1,15 +1,16 @@
-This is dc.info, produced by makeinfo version 4.0 from dc.texi.
+This is dc.info, produced by makeinfo version 4.8 from dc.texi.
 
 START-INFO-DIR-ENTRY
-* dc: (dc).                   Arbritrary precision RPN "Desktop Calculator".
+* dc: (dc).                   Arbitrary precision RPN "Desktop Calculator".
 END-INFO-DIR-ENTRY
-   This file documents DC, an arbitrary precision calculator.
 
-   Published by the Free Software Foundation, Inc.  59 Temple Place,
-Suite 330 Boston, MA 02111 USA
+   This file documents `dc', an arbitrary precision calculator.
 
-   Copyright (C) 1984, 1994, 1997, 1998, 2000 Free Software Foundation,
-Inc.
+   Published by the Free Software Foundation, Inc.  51 Franklin Street,
+Fifth Floor Boston, MA 02110-1301  USA
+
+   Copyright (C) 1984, 1994, 1997, 1998, 2000, 2005, 2006 Free Software
+Foundation, Inc.
 
    Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -45,46 +46,49 @@ File: dc.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
 
 File: dc.info,  Node: Introduction,  Next: Invocation,  Prev: Top,  Up: Top
 
-Introduction
-************
+1 Introduction
+**************
 
-   DC is a reverse-polish desk calculator which supports unlimited
+`dc' is a reverse-polish desk calculator which supports unlimited
 precision arithmetic.  It also allows you to define and call macros.
-Normally DC reads from the standard input; if any command arguments are
-given to it, they are filenames, and DC reads and executes the contents
-of the files instead of reading from standard input.  All normal output
-is to standard output; all error messages are written to standard error.
+Normally `dc' reads from the standard input; if any command arguments
+are given to it, they are filenames, and `dc' reads and executes the
+contents of the files instead of reading from standard input.  All
+normal output is to standard output; all error messages are written to
+standard error.
 
-   To exit, use `q'.  `C-c' does not exit; it is used to abort macros
-that are looping, etc.  (Currently this is not true; `C-c' does exit.)
+   To exit, use `q'.  `C-c' (or whatever other keystroke your system
+uses to generate a `SIGINT') does not exit; it is used to abort macros
+that are looping, etc.
 
    A reverse-polish calculator stores numbers on a stack.  Entering a
 number pushes it on the stack.  Arithmetic operations pop arguments off
 the stack and push the results.
 
-   To enter a number in DC, type the digits, with an optional decimal
-point.  Exponential notation is not supported.  To enter a negative
-number, begin the number with `_'.  `-' cannot be used for this, as it
-is a binary operator for subtraction instead.  To enter two numbers in
-succession, separate them with spaces or newlines.  These have no
-meaning as commands.
+   To enter a number in `dc', type the digits (using upper case letters
+`A' through `F' as "digits" when working with input bases greater than
+ten), with an optional decimal point.  Exponential notation is not
+supported.  To enter a negative number, begin the number with `_'.  `-'
+cannot be used for this, as it is a binary operator for subtraction
+instead.  To enter two numbers in succession, separate them with spaces
+or newlines; these have no meaning as commands.
 
 
 File: dc.info,  Node: Invocation,  Next: Printing Commands,  Prev: Introduction,  Up: Top
 
-Invocation
-**********
+2 Invocation
+************
 
-   DC may be invoked with the following command-line options:
+`dc' may be invoked with the following command-line options:
 `-e EXPR'
 
 `--expression=EXPR'
-     Evaluate EXPR as DC commands.
+     Evaluate EXPR as `dc' commands.
 
 `-f FILE'
 
 `--file=FILE'
-     Read and evaluate DC commands from FILE.
+     Read and evaluate `dc' commands from FILE.
 
 `-h'
 
@@ -106,8 +110,8 @@ then the standard input will be read for commands to evaluate.
 
 File: dc.info,  Node: Printing Commands,  Next: Arithmetic,  Prev: Invocation,  Up: Top
 
-Printing Commands
-*****************
+3 Printing Commands
+*******************
 
 `p'
      Prints the value on the top of the stack, without altering the
@@ -123,21 +127,35 @@ Printing Commands
      number, and the integer portion of its absolute value is printed
      out as a "base (UCHAR_MAX+1)" byte stream.  Assuming that
      (UCHAR_MAX+1) is 256 (as it is on most machines with 8-bit bytes),
-     the sequence `KSK 0k1/ [_1*]sx d0>x [256~aPd0<x]dsxx sxLKk' could
-     also accomplish this function, except for the side-effect of
-     clobbering the x register.  (Details of the behavior with a number
-     are a GNU extension.)
+     the sequence `KSK0k1/ _1Ss[ls*]Sxd0>x [256~Ssd0<x]dsxx
+     sx[q]Sq[Lsd0>qaPlxx]dsxx sx0sqLqsxLxLK+k' could also accomplish
+     this function.  (Much of the complexity of the above native-dc
+     code is due to the ~ computing the characters backwards, and the
+     desire to ensure that all registers wind up back in their original
+     states.)  (Details of the behavior with a number are a GNU
+     extension.  Traditional `dc' happened to "support" similar
+     functionality for a limited range of inputs as an accidental
+     side-effect of its internal representation of numbers.)
 
 `f'
      Prints the entire contents of the stack without altering anything.
      This is a good command to use if you are lost or want to figure
      out what the effect of some command has been.
 
+   All numeric output is split to fit within 70 columns, by default.
+When a number is broken up in this way, the split is indicated by a "\"
+at the end of the to-be-continued output lines.  The column width at
+which output is split can be overridden by setting the DC_LINE_LENGTH
+environment variable to the desired width.  A DC_LINE_LENGTH of 0
+(zero) disables the line-split feature altogether.  Invalid values of
+DC_LINE_LENGTH are silently ignored.  (The DC_LINE_LENGTH variable is a
+GNU extension.)
+
 
 File: dc.info,  Node: Arithmetic,  Next: Stack Control,  Prev: Printing Commands,  Up: Top
 
-Arithmetic
-**********
+4 Arithmetic
+************
 
 `+'
      Pops two values off the stack, adds them, and pushes the result.
@@ -204,8 +222,8 @@ subtraction produces integer results.
 
 File: dc.info,  Node: Stack Control,  Next: Registers,  Prev: Arithmetic,  Up: Top
 
-Stack Control
-*************
+5 Stack Control
+***************
 
 `c'
      Clears the stack, rendering it empty.
@@ -216,15 +234,16 @@ Stack Control
 
 `r'
      Reverses the order of (swaps) the top two values on the stack.
+     (This can also be accomplished with the sequence `SaSbLaLb'.)
      (This command is a GNU extension.)
 
 
 File: dc.info,  Node: Registers,  Next: Parameters,  Prev: Stack Control,  Up: Top
 
-Registers
-*********
+6 Registers
+***********
 
-   DC provides at least 256 memory registers, each named by a single
+`dc' provides at least 256 memory registers(1), each named by a single
 character.  You can store a number in a register and retrieve it later.
 
 `sR'
@@ -248,13 +267,19 @@ character.  You can store a number in a register and retrieve it later.
      the main stack.  The previous value in register R's stack, if any,
      is now accessible via the `lR' command.
 
+   ---------- Footnotes ----------
+
+   (1) The exact number of registers provided by `dc' depends on the
+range of an `unsigned char' in the C compiler used to create the `dc'
+executable.
+
 
 File: dc.info,  Node: Parameters,  Next: Strings,  Prev: Registers,  Up: Top
 
-Parameters
-**********
+7 Parameters
+************
 
-   DC has three parameters that control its operation: the precision,
+`dc' has three parameters that control its operation: the precision,
 the input radix, and the output radix.  The precision specifies the
 number of fraction digits to keep in the result of most arithmetic
 operations.  The input radix controls the interpretation of numbers
@@ -289,34 +314,37 @@ radix.
 `K'
      Pushes the current precision on the stack.
 
+
 
 File: dc.info,  Node: Strings,  Next: Status Inquiry,  Prev: Parameters,  Up: Top
 
-Strings
-*******
+8 Strings
+*********
 
-   DC can operate on strings as well as on numbers.  The only things
-you can do with strings are print them and execute them as macros
-(which means that the contents of the string are processed as DC
-commands).  Both registers and the stack can hold strings, and DC
-always knows whether any given object is a string or a number.  Some
-commands such as arithmetic operations demand numbers as arguments and
-print errors if given strings.  Other commands can accept either a
+`dc' has a limited ability to operate on strings as well as on numbers;
+the only things you can do with strings are print them and execute them
+as macros (which means that the contents of the string are processed as
+`dc' commands).  Both registers and the stack can hold strings, and
+`dc' always knows whether any given object is a string or a number.
+Some commands such as arithmetic operations demand numbers as arguments
+and print errors if given strings.  Other commands can accept either a
 number or a string; for example, the `p' command can accept either and
 prints the object according to its type.
 
 `[CHARACTERS]'
      Makes a string containing CHARACTERS and pushes it on the stack.
      For example, `[foo]P' prints the characters `foo' (with no
-     newline).
+     newline).  Note that all square brackets (`['s and `]'s) must be
+     balanced; there is no mechanism provided for handling unbalanced
+     square brackets.
 
 `a'
      The mnemonic for this is somewhat erroneous: asciify.  The
      top-of-stack is popped.  If it was a number, then the low-order
-     byte of this number is converted into a string and pushed onto the
-     stack.  Otherwise the top-of-stack was a string, and the first
-     character of that string is pushed back.  (This command is a GNU
-     extension.)
+     byte of this number is converted into a 1-character string and
+     pushed onto the stack.  Otherwise the top-of-stack was a string,
+     and the first character of that string is pushed back.  (This
+     command is a GNU extension.)
 
 `x'
      Pops a value off the stack and executes it as a macro.  Normally
@@ -359,7 +387,7 @@ prints the object according to its type.
      During the execution of a macro, this command exits from the macro
      and also from the macro which invoked it.  If called from the top
      level, or from a macro which was called directly from the top
-     level, the `q' command will cause DC to exit.
+     level, the `q' command will cause `dc' to exit.
 
 `Q'
      Pops a value off the stack and uses it as a count of levels of
@@ -368,13 +396,22 @@ prints the object according to its type.
 
 File: dc.info,  Node: Status Inquiry,  Next: Miscellaneous,  Prev: Strings,  Up: Top
 
-Status Inquiry
-**************
+9 Status Inquiry
+****************
 
 `Z'
      Pops a value off the stack, calculates the number of digits it has
      (or number of characters, if it is a string) and pushes that
      number.
+
+     Note that the digit count for a number does _not_ include any
+     leading zeros, even if those appear to the right of the radix
+     point.  This may seem a bit strange at first, but it is compatable
+     with historical implementations of `dc', and can be argued to be
+     useful for computing the magnitude of a value: `dSaXLaZ-' will
+     compute the power-of-ten multiplier which would be needed to shift
+     the decimal point to be immediately before the leftmost non-zero
+     digit.
 
 `X'
      Pops a value off the stack, calculates the number of fraction
@@ -388,8 +425,8 @@ Status Inquiry
 
 File: dc.info,  Node: Miscellaneous,  Next: Reporting bugs,  Prev: Status Inquiry,  Up: Top
 
-Miscellaneous
-*************
+10 Miscellaneous
+****************
 
 `!'
      Will run the rest of the line as a system command.  Note that
@@ -417,25 +454,26 @@ because the 2 was stored in an instance of 0:A that was later popped.
 
 File: dc.info,  Node: Reporting bugs,  Prev: Miscellaneous,  Up: Top
 
-Reporting bugs
-**************
+11 Reporting bugs
+*****************
 
-   Email bug reports to <bug-dc@gnu.org>.
+Email bug reports to <bug-dc@gnu.org>.  
 
 
 
 Tag Table:
-Node: Top1084
-Node: Introduction1663
-Node: Invocation2880
-Node: Printing Commands3724
-Node: Arithmetic4902
-Node: Stack Control7815
-Node: Registers8228
-Node: Parameters9154
-Node: Strings10415
-Node: Status Inquiry13385
-Node: Miscellaneous13942
-Node: Reporting bugs14909
+Node: Top1109
+Node: Introduction1688
+Node: Invocation3037
+Node: Printing Commands3888
+Node: Arithmetic5933
+Node: Stack Control8850
+Node: Registers9334
+Ref: Registers-Footnote-110302
+Node: Parameters10454
+Node: Strings11719
+Node: Status Inquiry14876
+Node: Miscellaneous15936
+Node: Reporting bugs16909
 
 End Tag Table

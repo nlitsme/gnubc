@@ -1,7 +1,6 @@
-/* execute.c - run a bc program. */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991-1994, 1997, 2000 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -27,10 +26,10 @@
                 Bellingham, WA 98226-9062
        
 *************************************************************************/
+/* execute.c - run a bc program. */
 
 #include "bcdefs.h"
 #include <signal.h>
-#include "global.h"
 #include "proto.h"
 
 
@@ -43,8 +42,6 @@ stop_execution (sig)
      int sig;
 {
   had_sigint = TRUE;
-  printf ("\n");
-  rt_error ("interrupted execution");
 }
 
 
@@ -85,10 +82,11 @@ execute ()
   if (interactive)
     {
       signal (SIGINT, stop_execution);
-      had_sigint = FALSE;
     }
    
-  while (pc.pc_addr < functions[pc.pc_func].f_code_size && !runtime_error)
+  had_sigint = FALSE;
+  while (pc.pc_addr < functions[pc.pc_func].f_code_size
+	 && !runtime_error && !had_sigint)
     {
       inst = byte(&pc);
 
@@ -290,6 +288,11 @@ execute ()
 	case 'I': /* Read function. */
 	  push_constant (input_char, i_base);
 	  break;
+
+	case 'X': /* Random function. */
+	  push_copy (_zero_);
+	  bc_int2num (&ex_stack->s_num, random());
+	  break;
 	}
 	break;
 
@@ -349,7 +352,7 @@ execute ()
 	push_copy (_zero_);
 	break;
 
-      case '1' : /* Load Constant 0. */
+      case '1' : /* Load Constant 1. */
 	push_copy (_one_);
 	break;
 
@@ -542,7 +545,7 @@ execute ()
     {
       signal (SIGINT, use_quit);
       if (had_sigint)
-	printf ("Interruption completed.\n");
+	printf ("\ninterrupted execution.\n");
     }
 }
 
@@ -550,20 +553,20 @@ execute ()
 /* Prog_char gets another byte from the program.  It is used for
    conversion of text constants in the code to numbers. */
 
-char
+int
 prog_char ()
 {
-  return byte(&pc);
+  return (int) byte(&pc);
 }
 
 
 /* Read a character from the standard input.  This function is used
    by the "read" function. */
 
-char
+int
 input_char ()
 {
-  char in_ch;
+  int in_ch;
   
   /* Get a character from the standard input for the read function. */
   in_ch = getchar();
@@ -572,12 +575,14 @@ input_char ()
   if (in_ch == '\\')
     {
       in_ch = getchar();
-      if (in_ch == '\n')
-	in_ch = getchar();
+      if (in_ch == '\n') {
+	  in_ch = getchar();
+	  out_col = 0;  /* Saw a new line */
+	}
     }
 
   /* Classify and preprocess the input character. */
-  if (isdigit((int)in_ch))
+  if (isdigit(in_ch))
     return (in_ch - '0');
   if (in_ch >= 'A' && in_ch <= 'F')
     return (in_ch + 10 - 'A');
@@ -598,12 +603,12 @@ input_char ()
 
 void
 push_constant (in_char, conv_base)
-   char (*in_char)(VOID);
+   int (*in_char)(VOID);
    int conv_base;
 {
   int digits;
   bc_num build, temp, result, mult, divisor;
-  char  in_ch, first_ch;
+  int   in_ch, first_ch;
   char  negative;
 
   /* Initialize all bc numbers */
@@ -695,7 +700,7 @@ push_b10_const (pc)
   bc_num build;
   program_counter look_pc;
   int kdigits, kscale;
-  char inchar;
+  unsigned char inchar;
   char *ptr;
   
   /* Count the digits and get things ready. */

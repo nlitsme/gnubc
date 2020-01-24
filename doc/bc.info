@@ -1,4 +1,8 @@
-This is bc.info, produced by makeinfo version 4.0 from bc.texi.
+This is bc.info, produced by makeinfo version 4.8 from bc.texi.
+
+START-INFO-DIR-ENTRY
+* bc: (bc).                    An arbitrary precision calculator language.
+END-INFO-DIR-ENTRY
 
 
 File: bc.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
@@ -12,15 +16,15 @@ File: bc.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
 * Functions::
 * Examples::
 * Readline and Libedit Options::
-* GNU `bc' and Other Implementations::
+* Comparison with Other Implementations::
 * Limits::
 * Environment Variables::
 
 
 File: bc.info,  Node: Introduction,  Next: Basic Elements,  Prev: Top,  Up: Top
 
-Introduction
-************
+1 Introduction
+**************
 
 * Menu:
 
@@ -30,10 +34,10 @@ Introduction
 
 File: bc.info,  Node: Description,  Next: Command Line Options,  Prev: Introduction,  Up: Introduction
 
-Description
-===========
+1.1 Description
+===============
 
-   `bc' [ -hlwsqv ] [long-options] [  FILE ... ]
+`bc' [ -hlwsqv ] [long-options] [  FILE ... ]
 
    `bc' is a language that supports arbitrary precision numbers with
 interactive execution of statements.  There are some similarities in
@@ -63,10 +67,10 @@ better product due to his involvement.
 
 File: bc.info,  Node: Command Line Options,  Next: Numbers,  Prev: Description,  Up: Introduction
 
-Command Line Options
-====================
+1.2 Command Line Options
+========================
 
-   `bc' takes the following options from the command line:
+`bc' takes the following options from the command line:
 `-h, --help'
      Print the usage and exit.
 
@@ -85,11 +89,12 @@ Command Line Options
 `-v, --version'
      Print the version number and copyright and quit.
 
+
 
 File: bc.info,  Node: Basic Elements,  Next: Expressions,  Prev: Introduction,  Up: Top
 
-Basic Elements
-**************
+2 Basic Elements
+****************
 
 * Menu:
 
@@ -100,10 +105,10 @@ Basic Elements
 
 File: bc.info,  Node: Numbers,  Next: Variables,  Prev: Command Line Options,  Up: Basic Elements
 
-Numbers
-=======
+2.1 Numbers
+===========
 
-   The most basic element in `bc' is the number.  Numbers are arbitrary
+The most basic element in `bc' is the number.  Numbers are arbitrary
 precision numbers.  This precision is both in the integer part and the
 fractional part.  All numbers are represented internally in decimal and
 all computation is done in decimal.  (This version truncates results
@@ -117,10 +122,10 @@ of 3.
 
 File: bc.info,  Node: Variables,  Next: Comments,  Prev: Numbers,  Up: Basic Elements
 
-Variables
-=========
+2.2 Variables
+=============
 
-   Numbers are stored in two types of variables, simple variables and
+Numbers are stored in two types of variables, simple variables and
 arrays.  Both simple variables and array variables are named.  Names
 begin with a letter followed by any number of letters, digits and
 underscores.  All letters must be lower case.  (Full alphanumeric names
@@ -140,10 +145,10 @@ assigned to them as well as used in expressions.
 
 File: bc.info,  Node: Comments,  Prev: Variables,  Up: Basic Elements
 
-Comments
-========
+2.3 Comments
+============
 
-   Comments in `bc' start with the characters `/*' and end with the
+Comments in `bc' start with the characters `/*' and end with the
 characters `*/'.  Comments may start anywhere and appear as a single
 space in the input.  (This causes comments to delimit other input
 items.  For example, a comment can not be found in the middle of a
@@ -158,8 +163,8 @@ character is not part of the comment and is processed normally.
 
 File: bc.info,  Node: Expressions,  Next: Statements,  Prev: Basic Elements,  Up: Top
 
-Expressions
-***********
+3 Expressions
+*************
 
 * Menu:
 
@@ -173,13 +178,13 @@ Expressions
 
 File: bc.info,  Node: About Expressions and Special Variables,  Next: Basic Expressions,  Prev: Expressions,  Up: Expressions
 
-About Expressions and Special Variables
-=======================================
+3.1 About Expressions and Special Variables
+===========================================
 
-   The numbers are manipulated by expressions and statements.  Since
-the language was designed to be interactive, statements and expressions
-are executed as soon as possible.  There is no main program.  Instead,
-code is executed as it is encountered.  (Functions, discussed in detail
+The numbers are manipulated by expressions and statements.  Since the
+language was designed to be interactive, statements and expressions are
+executed as soon as possible.  There is no main program.  Instead, code
+is executed as it is encountered.  (Functions, discussed in detail
 later, are defined when encountered.)
 
    A simple expression is just a constant. `bc' converts constants into
@@ -205,11 +210,11 @@ number representable by a C integer.
 
 File: bc.info,  Node: Basic Expressions,  Next: Relational Expressions,  Prev: About Expressions and Special Variables,  Up: Expressions
 
-Basic Expressions
-=================
+3.2 Basic Expressions
+=====================
 
-   In the following descriptions of legal expressions, "expr" refers to
-a complete expression and "VAR" refers to a simple or an array variable.
+In the following descriptions of legal expressions, "expr" refers to a
+complete expression and "VAR" refers to a simple or an array variable.
 A simple variable is just a
 
    NAME
@@ -290,10 +295,10 @@ scale of the expressions involved.
 
 File: bc.info,  Node: Relational Expressions,  Next: Boolean Expressions,  Prev: Basic Expressions,  Up: Expressions
 
-Relational Expressions
-======================
+3.3 Relational Expressions
+==========================
 
-   Relational expressions are a special kind of expression that always
+Relational expressions are a special kind of expression that always
 evaluate to 0 or 1, 0 if the relation is false and 1 if the relation is
 true.  These may appear in any legal expression.  (POSIX `bc' requires
 that relational expressions are used only in `if', `while', and `for'
@@ -321,13 +326,13 @@ relational operators are
 
 File: bc.info,  Node: Boolean Expressions,  Next: Precedence,  Prev: Relational Expressions,  Up: Expressions
 
-Boolean Expressions
-===================
+3.4 Boolean Expressions
+=======================
 
-   Boolean operations are also legal.  (POSIX `bc' does NOT have
-boolean operations). The result of all boolean operations are 0 and 1
-(for false and true) as in relational expressions.  The boolean
-operators are:
+Boolean operations are also legal.  (POSIX `bc' does NOT have boolean
+operations). The result of all boolean operations are 0 and 1 (for
+false and true) as in relational expressions.  The boolean operators
+are:
 
 `!expr'
      The result is 1 if expr is 0.
@@ -341,10 +346,10 @@ operators are:
 
 File: bc.info,  Node: Precedence,  Next: Special Expressions,  Prev: Boolean Expressions,  Up: Expressions
 
-Precedence
-==========
+3.5 Precedence
+==============
 
-   The expression precedence is as follows: (lowest to highest)
+The expression precedence is as follows: (lowest to highest)
 
      || operator, left associative
      && operator, left associative
@@ -373,10 +378,10 @@ assignment operators.
 
 File: bc.info,  Node: Special Expressions,  Prev: Precedence,  Up: Expressions
 
-Special Expressions
-===================
+3.6 Special Expressions
+=======================
 
-   There are a few more special expressions that are provided in `bc'.
+There are a few more special expressions that are provided in `bc'.
 These have to do with user-defined functions and standard functions.
 They all appear as "NAME`('PARAMETERS`)'".  *Note Functions::, for
 user-defined functions.  The standard functions are:
@@ -407,8 +412,8 @@ user-defined functions.  The standard functions are:
 
 File: bc.info,  Node: Statements,  Next: Functions,  Prev: Expressions,  Up: Top
 
-Statements
-**********
+4 Statements
+************
 
 * Menu:
 
@@ -540,12 +545,11 @@ STRING
 
 File: bc.info,  Node: Pseudo Statements,  Prev: Statements,  Up: Statements
 
-Pseudo Statements
-=================
+4.1 Pseudo Statements
+=====================
 
-   These statements are not statements in the traditional sense.  They
-are not executed statements.  Their function is performed at "compile"
-time.
+These statements are not statements in the traditional sense.  They are
+not executed statements.  Their function is performed at "compile" time.
 
 `limits'
      Print the local limits enforced by the local version of `bc'.  This
@@ -562,8 +566,8 @@ time.
 
 File: bc.info,  Node: Functions,  Next: Examples,  Prev: Statements,  Up: Top
 
-Functions
-*********
+5 Functions
+***********
 
 * Menu:
 
@@ -585,16 +589,16 @@ definition.  A function is defined as follows:
 
    Parameters are numbers or arrays (an extension).  In the function
 definition, zero or more parameters are defined by listing their names
-separated by commas.  Numbers are only call by value parameters.
-Arrays are only call by variable.  Arrays are specified in the
-parameter definition by the notation "NAME`[ ]'".   In the function
-call, actual parameters are full expressions for number parameters.
-The same notation is used for passing arrays as for defining array
-parameters.  The named array is passed by variable to the function.
-Since function definitions are dynamic, parameter numbers and types are
-checked when a function is called.  Any mismatch in number or types of
-parameters will cause a runtime error.  A runtime error will also occur
-for the call to an undefined function.
+separated by commas.  All parameters  are call by value parameters.
+Arrays are specified in the parameter definition by the notation
+"NAME`[ ]'".   In the function call, actual parameters are full
+expressions for number parameters.  The same notation is used for
+passing arrays as for defining array parameters.  The named array is
+passed by value to the function.  Since function definitions are
+dynamic, parameter numbers and types are checked when a function is
+called.  Any mismatch in number or types of parameters will cause a
+runtime error.  A runtime error will also occur for the call to an
+undefined function.
 
    The AUTO_LIST is an optional list of variables that are for "local"
 use.  The syntax of the auto list (if present) is "`auto' NAME, ... ;".
@@ -630,24 +634,49 @@ ignored during the execution of the function except for the standard
 function `read', which will always use the current value of IBASE for
 conversion of numbers.
 
-   As an extension, the format of the definition has been slightly
-relaxed.  The standard requires the opening brace be on the same line
-as the `define' keyword and all other parts must be on following lines.
-This version of `bc' will allow any number of newlines before and after
-the opening brace of the function.  For example, the following
-definitions are legal.
+   Several extensions have been added to functions.  First, the format
+of the definition has been slightly relaxed.  The standard requires the
+opening brace be on the same line as the `define' keyword and all other
+parts must be on following lines.  This version of `bc' will allow any
+number of newlines before and after the opening brace of the function.
+For example, the following definitions are legal.
 
         define d (n) { return (2*n); }
         define d (n)
             { return (2*n); }
 
+   Functions may be defined as `void'.  A void funtion returns no value
+and thus may not be used in any place that needs a value.  A void
+function does not produce any output when called by itself on an input
+line.  The key word `void' is placed between the key word `define' and
+the function name.  For example, consider the following session.
+
+     define py (y) { print "--->", y, "<---", "\n"; }
+     define void px (x) { print "--->", x, "<---", "\n"; }
+     py(1)
+     --->1<---
+     0
+     px(1)
+     --->1<---
+
+   Since `py' is not a void function, the call of `py(1)' prints the
+desired output and then prints a second line that is the value of the
+function.  Since the value of a function that is not given an explicit
+return statement is zero, the zero is printed.  For `px(1)', no zero is
+printed because the function is a void function.
+
+   Also, call by variable for arrays was added.  To declare a call by
+variable array, the declaration of the array parameter in the function
+definition looks like "`*'NAME`[]'".  The call to the function remains
+the same as call by value arrays.
+
 
 File: bc.info,  Node: Math Library Functions,  Prev: Functions,  Up: Functions
 
-Math Library Functions
-======================
+5.1 Math Library Functions
+==========================
 
-   If `bc' is invoked with the `-l' option, a math library is preloaded
+If `bc' is invoked with the `-l' option, a math library is preloaded
 and the default SCALE is set to 20.  The math functions will calculate
 their results to the scale set at the time of their call.  The math
 library defines the following functions:
@@ -664,19 +693,19 @@ library defines the following functions:
 `l (X)'
      The natural logarithm of X.
 
-`E (X)'
+`e (X)'
      The exponential function of raising E to the value X.
 
-`J (N,X)'
-     The bessel function of integer order N of X.
+`j (N,X)'
+     The Bessel function of integer order N of X.
 
 
 File: bc.info,  Node: Examples,  Next: Readline and Libedit Options,  Prev: Functions,  Up: Top
 
-Examples
-********
+6 Examples
+**********
 
-   In /bin/sh,  the following will assign the value of "pi" to the shell
+In /bin/sh,  the following will assign the value of "pi" to the shell
 variable PI.
 
      pi=$(echo "scale=10; 4*a(1)" | bc -l)
@@ -686,21 +715,21 @@ the math library.  This function is written in POSIX `bc'.
 
 
      scale = 20
-     
+
      /* Uses the fact that e^x = (e^(x/2))^2
         When x is small enough, we use the series:
           e^x = 1 + x + x^2/2! + x^3/3! + ...
      */
-     
+
      define e(x) {
        auto  a, d, e, f, i, m, v, z
-     
+
        /* Check the sign of x. */
        if (x<0) {
          m = 1
          x = -x
        }
-     
+
        /* Precondition x. */
        z = scale;
        scale = 4 + z + .44*x;
@@ -708,12 +737,12 @@ the math library.  This function is written in POSIX `bc'.
          f += 1;
          x /= 2;
        }
-     
+
        /* Initialize the variables. */
        v = 1+x
        a = x
        d = 1
-     
+
        for (i=2; 1; i++) {
          e = (a *= x) / (d *= i)
          if (e == 0) {
@@ -736,7 +765,7 @@ without having to retype it at every use.
      print "\nCheck book program\n!"
      print "  Remember, deposits are negative transactions.\n"
      print "  Exit by a 0 transaction.\n\n"
-     
+
      print "Initial balance? "; bal = read()
      bal /= 1
      print "\n"
@@ -758,12 +787,12 @@ without having to retype it at every use.
      }
 
 
-File: bc.info,  Node: Readline and Libedit Options,  Next: GNU `bc' and Other Implementations,  Prev: Examples,  Up: Top
+File: bc.info,  Node: Readline and Libedit Options,  Next: Comparison with Other Implementations,  Prev: Examples,  Up: Top
 
-Readline and Libedit Options
-****************************
+7 Readline and Libedit Options
+******************************
 
-   GNU `bc' can be compiled (via a configure option) to use the GNU
+GNU `bc' can be compiled (via a configure option) to use the GNU
 `readline' input editor library or the BSD `libedit' library.  This
 allows the user to do more editing of lines before sending them to
 `bc'.  It also allows for a history of previous lines typed.  When this
@@ -778,14 +807,14 @@ libraries.  One can not enable both `readline' and `libedit' at the
 same time.
 
 
-File: bc.info,  Node: GNU `bc' and Other Implementations,  Next: Limits,  Prev: Readline and Libedit Options,  Up: Top
+File: bc.info,  Node: Comparison with Other Implementations,  Next: Limits,  Prev: Readline and Libedit Options,  Up: Top
 
-GNU `bc' and Other Implementations
-**********************************
+8 Comparison with Other Implementations
+***************************************
 
-   This version of `bc' was implemented from the POSIX P1003.2/D11
-draft and contains several differences and extensions relative to the
-draft and traditional implementations.  It is not implemented in the
+This version of `bc' was implemented from the POSIX P1003.2/D11 draft
+and contains several differences and extensions relative to the draft
+and traditional implementations.  It is not implemented in the
 traditional way using `dc'.  This version is a single process which
 parses and runs a byte code translation of the program.  There is an
 "undocumented" option (-c) that causes the program to output the byte
@@ -903,12 +932,12 @@ INTERRUPTS
      session, the SIGINT signal will terminate the entire run of `bc'.
 
 
-File: bc.info,  Node: Limits,  Next: Environment Variables,  Prev: GNU `bc' and Other Implementations,  Up: Top
+File: bc.info,  Node: Limits,  Next: Environment Variables,  Prev: Comparison with Other Implementations,  Up: Top
 
-Limits
-******
+9 Limits
+********
 
-   The following are the limits currently in place for this `bc'
+The following are the limits currently in place for this `bc'
 processor.  Some of them may have been changed by an installation.  Use
 the `limits' statement to see the actual values.
 
@@ -945,10 +974,10 @@ the `limits' statement to see the actual values.
 
 File: bc.info,  Node: Environment Variables,  Prev: Limits,  Up: Top
 
-Environment Variables
-*********************
+10 Environment Variables
+************************
 
-   The following environment variables are processed by `bc':
+The following environment variables are processed by `bc':
 
 `POSIXLY_CORRECT'
      This is the same as the -s option (*note Command Line Options::).
@@ -956,7 +985,7 @@ Environment Variables
 `BC_ENV_ARGS'
      This is another mechanism to get arguments to `bc'.  The format is
      the same as the command line arguments.  These arguments are
-     processed first, so any files listed in the environent arguments
+     processed first, so any files listed in the environment arguments
      are processed before any command line argument files.  This allows
      the user to set up "standard" options and files to be processed at
      every invocation of `bc'.  The files in the environment variables
@@ -964,36 +993,38 @@ Environment Variables
      wants defined every time `bc' is run.
 
 `BC_LINE_LENGTH'
-     This should be an integer specifing the number of characters in an
+     This should be an integer specifying the number of characters in an
      output line for numbers. This includes the backslash and newline
-     characters for long numbers.
+     characters for long numbers. As an extension, the value of zero
+     disables the multi-line feature.  Any other value of this variable
+     that is less than 3 sets the line length to 70.
 
 
 
 Tag Table:
-Node: Top65
-Node: Introduction354
-Node: Description515
-Node: Command Line Options1969
-Node: Basic Elements2533
-Node: Numbers2704
-Node: Variables3467
-Node: Comments4576
-Node: Expressions5317
-Node: About Expressions and Special Variables5597
-Node: Basic Expressions7333
-Node: Relational Expressions10274
-Node: Boolean Expressions11279
-Node: Precedence11834
-Node: Special Expressions12994
-Node: Statements14376
-Node: Pseudo Statements21001
-Node: Functions21649
-Node: Math Library Functions25703
-Node: Examples26413
-Node: Readline and Libedit Options28431
-Node: GNU `bc' and Other Implementations29458
-Node: Limits34700
-Node: Environment Variables35953
+Node: Top181
+Node: Introduction473
+Node: Description638
+Node: Command Line Options2097
+Node: Basic Elements2667
+Node: Numbers2842
+Node: Variables3610
+Node: Comments4724
+Node: Expressions5470
+Node: About Expressions and Special Variables5754
+Node: Basic Expressions7495
+Node: Relational Expressions10441
+Node: Boolean Expressions11451
+Node: Precedence12011
+Node: Special Expressions13176
+Node: Statements14563
+Node: Pseudo Statements21192
+Node: Functions21845
+Node: Math Library Functions27008
+Node: Examples27723
+Node: Readline and Libedit Options29707
+Node: Comparison with Other Implementations30738
+Node: Limits35990
+Node: Environment Variables37247
 
 End Tag Table

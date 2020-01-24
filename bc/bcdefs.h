@@ -1,7 +1,6 @@
-/* bcdefs.h:  The single file to include all constants and type definitions. */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991, 1992, 1993, 1994, 1997 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -27,6 +26,8 @@
                 Bellingham, WA 98226-9062
        
 *************************************************************************/
+
+/* bcdefs.h:  The single file to include all constants and type definitions. */
 
 /* Include the configuration file. */
 #include "config.h"
@@ -51,6 +52,15 @@
 #if defined(READLINE)
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
+
+/* Initialization magic ... */
+#ifdef _GLOBAL_C
+#define EXTERN 
+#define INIT(x) = x
+#else
+#define EXTERN extern
+#define INIT(x)
 #endif
 
 /* Include the other definitions. */
@@ -90,6 +100,7 @@ typedef struct arg_list
 typedef struct 
     {
       char f_defined;   /* Is this function defined yet. */
+      char f_void;	/* Is this function a void function. */
       char *f_body;
       int  f_body_size;  /* Size of body.  Power of 2. */
       int  f_code_size;
@@ -186,3 +197,6 @@ typedef struct file_node {
 #define HISTORY_SIZE(n) stifle_history(n)
 #define UNLIMIT_HISTORY unstifle_history()
 #endif
+
+/* Now the global variable declarations. */
+#include "global.h"

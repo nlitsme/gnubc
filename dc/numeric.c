@@ -1,7 +1,7 @@
 /* 
  * interface dc to the bc numeric routines
  *
- * Copyright (C) 1994, 1997, 1998, 2000 Free Software Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2000, 2005 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, you can either send email to this
- * program's author (see below) or write to:
+ * along with this program; if not, you can write to:
  *   The Free Software Foundation, Inc.
- *   59 Temple Place, Suite 330
- *   Boston, MA 02111 USA
+ *   51 Franklin Street, Fifth Floor
+ *   Boston, MA 02110-1301  USA
  */
 
 /* This should be the only module that knows the internals of type dc_num */
@@ -32,10 +31,19 @@
 #include <ctype.h>
 #ifdef HAVE_LIMITS_H
 # include <limits.h>
-#else
+#endif
+#ifndef UCHAR_MAX
 # define UCHAR_MAX ((unsigned char)~0)
 #endif
-#include <stdlib.h>
+#ifdef HAVE_STDLIB_H
+# include <stdlib.h>
+#endif
+#ifdef HAVE_ERRNO_H
+# include <errno.h>
+#else
+  extern int errno;
+#endif
+
 #include "number.h"
 #include "dc.h"
 #include "dc-proto.h"
@@ -239,6 +247,11 @@ dc_num2int DC_DECLARG((value, discard_p))
 	long result;
 
 	result = bc_num2long(CastNum(value));
+	if (result == 0 && !bc_is_zero(CastNum(value))) {
+		fprintf(stderr, "%s: value overflows simple integer; punting...\n",
+				progname);
+		result = -1; /* more appropriate for dc's purposes */
+	}
 	if (discard_p == DC_TOSS)
 		dc_free_num(&value);
 	return (int)result;
@@ -256,7 +269,7 @@ dc_int2data DC_DECLARG((value))
 
 	bc_init_num((bc_num *)&result.v.number);
 	bc_int2num((bc_num *)&result.v.number, value);
- 	result.dc_type = DC_NUMBER;
+	result.dc_type = DC_NUMBER;
 	return result;
 }
 
@@ -352,15 +365,21 @@ dc_getnum DC_DECLARG((input, ibase, readahead))
 }
 
 
-/* return the "length" of the number */
+/* Return the "length" of the number, ignoring *all* leading zeros,
+ * (including those to the right of the radix point!)
+ */
 int
 dc_numlen DC_DECLARG((value))
 	dc_num value DC_DECLEND
 {
+	/* XXX warning: unholy coziness with the internals of a bc_num! */
 	bc_num num = CastNum(value);
+	char *p = num->n_value;
+	int i = num->n_len + num->n_scale;
 
-	/* is this right??? */
-	return num->n_len + num->n_scale - (*num->n_value == '\0');
+	while (1<i && *p=='\0')
+		--i, ++p;
+	return i;
 }
 
 /* return the scale factor of the passed dc_num
@@ -489,18 +508,60 @@ dc_dup_num DC_DECLARG((value))
 | The bulk of the code was just lifted straight out of the bc source.        |
 \---------------------------------------------------------------------------*/
 
-#ifdef HAVE_STDLIB_H
-# include <stdlib.h>
-#endif
-
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
 #else
 # include <varargs.h>
 #endif
 
+#ifndef HAVE_STRTOL
+/* Maintain some of the error checking of a real strtol() on
+ * ancient systems that lack one, but punting on the niceties
+ * of supporting bases other than 10 and overflow checking.
+ */
+long
+strtol(const char *s, char **end, int base)
+{
+	int sign = 1;
+	long result = 0;
 
-int out_col = 0;
+	for (;; ++s) {
+		if (*s == '-')
+			sign = -sign;
+		else if (*s != '+' && !isspace(*s))
+			break;
+	}
+	while (isdigit(*s))
+		result = 10*result + (*s++ - '0');
+	*end = s;
+	return result * sign;
+}
+#endif /*!HAVE_STRTOL*/
+
+
+static int out_col = 0;
+static int line_max = -1;	/* negative means "need to check environment" */
+#define DEFAULT_LINE_MAX 70
+
+static void
+set_line_max_from_environment(void)
+{
+	const char *env_line_len = getenv("DC_LINE_LENGTH");
+	line_max = DEFAULT_LINE_MAX;
+	errno = 0;
+	if (env_line_len) {
+		char *endptr;
+		long proposed_line_len = strtol(env_line_len, &endptr, 0);
+		line_max = (int)proposed_line_len;
+
+		/* silently enforce sanity */
+		while (isspace(*endptr))
+			++endptr;
+		if (*endptr || errno || line_max != proposed_line_len
+					|| line_max < 0 || line_max == 1)
+			line_max = DEFAULT_LINE_MAX;
+	}
+}
 
 /* Output routines: Write a character CH to the standard output.
    It keeps track of the number of characters output and may
@@ -508,24 +569,20 @@ int out_col = 0;
 
 static void
 out_char (ch)
-     int ch;
+	int ch;
 {
-
-  if (ch == '\0')
-    {
-      out_col = 0;
-    }
-  else
-    {
-      out_col++;
-      if (out_col == 70)
-	{
-	  putchar ('\\');
-	  putchar ('\n');
-	  out_col = 1;
+	if (ch == '\0') {
+		out_col = 0;
+	} else {
+		if (line_max < 0)
+			set_line_max_from_environment();
+		if (++out_col >= line_max && line_max != 0) {
+			putchar ('\\');
+			putchar ('\n');
+			out_col = 1;
+		}
+		putchar(ch);
 	}
-      putchar (ch);
-    }
 }
 
 /* Malloc could not get enough memory. */
@@ -533,10 +590,10 @@ out_char (ch)
 void
 out_of_memory()
 {
-  dc_memfail();
+	dc_memfail();
 }
 
-/* Runtime error will  print a message and stop the machine. */
+/* Runtime error --- will print a message and stop the machine. */
 
 #ifdef HAVE_STDARG_H
 #ifdef __STDC__
@@ -545,25 +602,25 @@ rt_error (char *mesg, ...)
 #else
 void
 rt_error (mesg)
-     char *mesg;
+	char *mesg;
 #endif
 #else
 void
 rt_error (mesg, va_alist)
-     char *mesg;
+	char *mesg;
 #endif
 {
-  va_list args;
+	va_list args;
 
-  fprintf (stderr, "Runtime error: ");
+	fprintf (stderr, "Runtime error: ");
 #ifdef HAVE_STDARG_H
-  va_start (args, mesg);
+	va_start (args, mesg);
 #else
-  va_start (args);
+	va_start (args);
 #endif
-  vfprintf (stderr, mesg, args);
-  va_end (args);
-  fprintf (stderr, "\n");
+	vfprintf (stderr, mesg, args);
+	va_end (args);
+	fprintf (stderr, "\n");
 }
 
 
@@ -578,23 +635,32 @@ rt_warn (char *mesg, ...)
 #else
 void
 rt_warn (mesg)
-     char *mesg;
+	char *mesg;
 #endif
 #else
 void
 rt_warn (mesg, va_alist)
-     char *mesg;
+	char *mesg;
 #endif
 {
-  va_list args;
+	va_list args;
 
-  fprintf (stderr, "Runtime warning: ");
+	fprintf (stderr, "Runtime warning: ");
 #ifdef HAVE_STDARG_H
-  va_start (args, mesg);
+	va_start (args, mesg);
 #else
-  va_start (args);
+	va_start (args);
 #endif
-  vfprintf (stderr, mesg, args);
-  va_end (args);
-  fprintf (stderr, "\n");
+	vfprintf (stderr, mesg, args);
+	va_end (args);
+	fprintf (stderr, "\n");
 }
+
+
+/*
+ * Local Variables:
+ * mode: C
+ * tab-width: 4
+ * End:
+ * vi: set ts=4 :
+ */

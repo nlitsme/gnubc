@@ -1,7 +1,7 @@
 /* 
  * implement string functions for dc
  *
- * Copyright (C) 1994, 1997, 1998 Free Software Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2006 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  * program's author (see below) or write to:
  *
  *    The Free Software Foundation, Inc.
- *    59 Temple Place, Suite 330
- *    Boston, MA 02111 USA
+ *    51 Franklin Street, Fifth Floor
+ *    Boston, MA 02110-1301  USA
  */
 
 /* This should be the only module that knows the internals of type dc_string */
@@ -147,9 +147,9 @@ dc_readstring DC_DECLARG((fp, ldelim, rdelim))
 	char *p;
 	const char *end;
 
-	if (!line_buf){
+	if (line_buf == NULL){
 		/* initial buflen should be large enough to handle most cases */
-		buflen = 2016;
+		buflen = (size_t) 2016;
 		line_buf = dc_malloc(buflen);
 	}
 	p = line_buf;
@@ -169,7 +169,7 @@ dc_readstring DC_DECLARG((fp, ldelim, rdelim))
 			 */
 			buflen += 2048;
 			line_buf = realloc(line_buf, buflen);
-			if (!line_buf)
+			if (line_buf == NULL)
 				dc_memfail();
 			p = line_buf + offset;
 			end = line_buf + buflen;
@@ -209,3 +209,12 @@ dc_string_init DC_DECLVOID()
 {
 	/* nothing to do for this implementation */
 }
+
+
+/*
+ * Local Variables:
+ * mode: C
+ * tab-width: 4
+ * End:
+ * vi: set ts=4 :
+ */

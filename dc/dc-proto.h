@@ -1,7 +1,7 @@
 /*
  * prototypes of all externally visible dc functions
- * 
- * Copyright (C) 1994, 1997, 1998 Free Software Foundation, Inc.
+ *
+ * Copyright (C) 1994, 1997, 1998, 2003 Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  * program's author (see below) or write to:
  *
  *    The Free Software Foundation, Inc.
- *    59 Temple Place, Suite 330
- *    Boston, MA 02111 USA
+ *    51 Franklin Street, Fifth Floor
+ *    Boston, MA 02110-1301  USA
  */
 
 extern const char *dc_str2charp DC_PROTO((dc_str));
@@ -57,7 +57,7 @@ extern void dc_string_init DC_PROTO((void));
 extern int  dc_cmpop DC_PROTO((void));
 extern int  dc_compare DC_PROTO((dc_num, dc_num));
 extern int  dc_evalfile DC_PROTO((FILE *));
-extern int  dc_evalstr DC_PROTO((dc_data));
+extern int  dc_evalstr DC_PROTO((dc_data *));
 extern int  dc_num2int DC_PROTO((dc_num, dc_discard));
 extern int  dc_numlen DC_PROTO((dc_num));
 extern int  dc_pop DC_PROTO((dc_data *));

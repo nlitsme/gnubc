@@ -1,8 +1,6 @@
-%{
-/* scan.l: the (f)lex description file for the scanner. */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991, 1992, 1993, 1994, 1997 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -28,6 +26,10 @@
                 Bellingham, WA 98226-9062
        
 *************************************************************************/
+
+/* scan.l: the (f)lex description file for the scanner. */
+
+%{
 
 #include "bcdefs.h"
 #include "bc.h"
@@ -143,7 +145,6 @@ static int   rl_len = 0;
 
 /* Definitions for readline access. */
 extern FILE *rl_instream;
-_PROTOTYPE(char *readline, (char *));
 
 /* rl_input puts upto MAX characters into BUF with the number put in
    BUF placed in *RESULT.  If the yy input file is the same as
@@ -243,8 +244,10 @@ obase  return(Obase);
 auto   return(Auto);
 else   return(Else);
 read   return(Read);
+random return(Random);
 halt   return(Halt);
 last   return(Last);
+void   return(Void); 
 history {
 #if defined(READLINE) || defined(LIBEDIT)
 	  return(HistoryVar);
@@ -269,7 +272,7 @@ limits return(Limits);
 && { return(AND); }
 \|\| { return(OR); }
 "!" { return(NOT); }
-"*"|"/"|"%" { yylval.c_value = yytext[0]; return((int)yytext[0]); }
+"*"|"/"|"%"|"&" { yylval.c_value = yytext[0]; return((int)yytext[0]); }
 "="|\+=|-=|\*=|\/=|%=|\^=  { yylval.c_value = yytext[0]; return(ASSIGN_OP); }
 =\+|=-|=\*|=\/|=%|=\^  { 
 #ifdef OLD_EQ_OP

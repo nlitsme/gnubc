@@ -16,8 +16,8 @@
     along with this program; see the file COPYING.  If not, write to:
 
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111-1307 USA.
+      51 Franklin Street, Fifth Floor
+      Boston, MA 02110-1301  USA
 
 
     You may contact the author by:
@@ -33,8 +33,15 @@
 #include <config.h>
 #include <number.h>
 #include <assert.h>
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#include <ctype.h>/* Prototypes needed for external utility routines. */
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+#include <ctype.h>
+
+/* Prototypes needed for external utility routines. */
 
 #define bc_rt_warn rt_warn
 #define bc_rt_error rt_error
@@ -1653,7 +1660,7 @@ bc_int2num (num, val)
 /* Convert a numbers to a string.  Base 10 only.*/
 
 char
-*num2str (num)
+*bc_num2str (num)
       bc_num num;
 {
   char *str, *sptr;
@@ -1761,6 +1768,10 @@ bc_str2num (num, str, scale)
     }
 }
 
+/* Debugging routines */
+
+#ifdef DEBUG
+
 /* pn prints the number NUM in base 10. */
 
 static void
@@ -1791,3 +1802,5 @@ pv (name, num, len)
   for (i=0; i<len; i++) printf ("%c",BCD_CHAR(num[i]));
   printf ("\n");
 }
+
+#endif

@@ -1,3 +1,252 @@
+Sun Jun  4 13:56:58 2006 Ken Pizzini <ken@gnu.org>
+	* doc/dc.texi: document new DC_LINE_LENGTH variable; mention
+	  traditional dc's handling of P with a numeric input
+	* dc/dc.c (flush_okay, main): make code detecting and handling
+	  write errors cleaner
+
+Sun Jun  4 12:26:00 2006 Phil Nelson <phil@cs.wwu.edu>
+	* bc/main.c: Make sure 3 is the minimum line length.
+	* doc/bc.1, doc/bc.texi: Document the BC_LINE_LENGTH of 0 feature.
+
+Sun Jun  4 04:41:28 2006 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c (main): fflush() isn't enough: also check that fclose()
+	  does not return an error before exiting with EXIT_SUCCESS
+
+Sun Jun  4 04:15:15 2006 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c, dc/eval.c: detect, report (if possible), and exit with error
+	  if any I/O errors are encountered
+
+Sun Jun  4 02:27:41 2006 Ken Pizzini <ken@gnu.org>
+	* bc/main.c, bc/util.c: allow a BC_LINE_LENGTH of zero as a
+	  special-case, meaning "don't ever wrap lines"
+	* dc/numeric.c, configure.in: add support for a DC_LINE_LENGTH
+	  variable, with a value of zero meaning "don't ever wrap lines"
+
+Fri May  5 18:45:17 2006 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c (try_file): S_ISREG() test was inverted! :-(
+	  (how very embarrassing)
+
+	* configure.in: the "if test" -> "case" conversion in the last commit
+	  translated the handling of flex incorrectly; fixed
+
+	* src/scan.l: readline versions 4.2 and up give their own prototype
+	  for readline() in readline.h, which conflicts with the one that is
+	  in scan.l, so just do without the prototype in scan.l (if someone
+	  needs to backport to a very old version of readline, they should be
+	  able to handle adding the prototype back in themselves)
+
+	* doc/bc.texi: use of @var{} in @item causes capitalization on output,
+	  which is wrong, and furthermore the use of @var{} for e() and j() is
+	  also inconsistent with how the other math functions are formatted
+
+Sat Apr 29 05:02:15 2006 Ken Pizzini <ken@gnu.org>
+	* configure.in: The "true" branch of AC_ARG_WITH needed to
+	  be conditionalized on the value of $withval (thanks to Mike
+	  Frysinger of Gentoo for pointing this out); prefer using
+	  "case" over "if test" in shell string-match conditionals;
+	  make use of AC_HELP_STRING; added copyright block; clean
+	  out old "dnl"'d directives
+
+Sat Apr 29 04:02:23 2006 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c (try_file): fix typo in S_ISFIFO conditional
+
+	* doc/bc.1, doc/bc.texi, doc/dc.1, doc/dc.texi: make some
+	  formatting clean-up (minor)
+
+Wed Apr 26 15:38:32 2006 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c (try_file): rework special-file detection so that
+	  friendlier error messages can be given for the most common
+	  error of this class (i.e., the "dc directory" typo).
+
+Thu Apr 20 17:45:46 2006 Ken Pizzini <ken@gnu.org>
+	* configure.in: Newer versions of flex (such as ver. 2.5.33)
+	  don't seem to like an argument of "-I8" anymore ("option `I'
+	  doesn't allow an argument"), so split that into "-I -8".
+
+Wed Mar 29 05:09:14 2006 Ken Pizzini <ken@gnu.org>
+	* dc/string.c, dc/misc.c, dc/stack.c, dc/dc.c, dc/eval.c, dc/array.c:
+	  Make splint (http://www.splint.org/) happier by making all
+	  comparisons to 0 and NULL explicit, and adding some explicit casts
+	  that aren't strictly necessary.  (But I'm omitting from this commit
+	  various splint annotations that just serve to make the code ugly.)
+
+Tue Mar 28 13:36:00 2006 Phil Nelson <phil@cs.wwu.edu>
+	* bc/util.c: Move code so size checks are before use.
+
+	* doc/bc.1: Quote .IP argument.
+
+Tue Mar 28 12:09:38 2006 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c (try_file):  Added file type detection to ignore some
+	  special files (particularly directories and block files), because
+	  several people have asked that a typo for "cd" not fail silently.
+
+	* configure.in: add detection of fstat() to determine how the
+	  above detection should be implemented.
+
+Wed Mar 15 9:50:00 2006 Phil Nelson <phil@cs.wwu.edu>
+	* lib/getopt.c:  Added a define to disable/enable
+	  gettext support.  May need to be deleted later
+	  when gettext is fully supported.  
+
+Mon Mar 13 13:57:00 2006 Phil Nelson <phil@cs.wwu.edu>
+	* bc/bc.y: Remove second call to lookup() in a rule.
+	  Removes a free'd twice bug.
+
+Sat May 28 05:42:01 2005 Ken Pizzini <ken@gnu.org>
+
+	* doc/dc.1, doc/dc.texi: add verbage about the need to use
+	  upper-case letters for ibase>10 (bug reported by "TJIC").
+
+Fri May 20 ??:??:?? 2005 Ken Pizzini <ken@gnu.org>
+	* lib/getopt.c, lib/getopt1.c: Update to more recent versions.
+
+Fri May 27 09:19:21 2005 Ken Pizzini <ken@gnu.org>
+
+	* dc/eval.c: abstract out skip_past_eol() function to handle comments
+
+Fri May 27 07:30:52 2005 Ken Pizzini <ken@gnu.org>
+
+	* dc/numeric.c (dc_numlen), doc/dc.1, dc.texi: correct Z command
+	  to match historical meaning
+
+Fri May 27 06:54:19 2005 Ken Pizzini <ken@gnu.org>
+
+	* dc/eval.c: ignore trailing comments in tail-recursion detection
+
+	* dc/eval.c, doc/dc.texi: finally fix dc to trap interrupts,
+	  aborting pending macros but not exiting
+
+Fri May 27 03:37:30 2005 Ken Pizzini <ken@gnu.org>
+
+	* dc/numeric.c: Address Debian bug #221781: values exceeding
+	  a C "long" don't play well with k/i/o/a/Q/:/; commands.
+	  Adding a diagnostic, and returning a "more bogus" value than
+	  zero, for this situation.
+
+Thu May 26 09:03:57 2005 Ken Pizzini <ken@gnu.org>
+
+	* dc/eval.c:
+	  1) fix tail recursion to also work for 'x' and '?' commands
+	  2) fix tail recursion to ignore trailing spaces in the current
+	     invocation string when determining if tail recursion is
+	     appropriate
+	  3) remove a couple of misleading and/or meaningless comments
+	  4) add documentation for stdin_lookahead, since the code is far
+	     from transparent about its purpose and usage
+	  5) simplify ibase conditional by rearranging branches
+
+Wed May 25 21:20:08 2005 Ken Pizzini <ken@gnu.org>
+
+	* dc/array.c dc/dc-proto.h dc/dc-regdef.h dc/dc.c dc/dc.h
+	  dc/eval.c dc/numeric.c: whitespace cleanup
+
+Wed May 25 19:48:26 2005 Ken Pizzini <ken@gnu.org>
+
+	* COPYING COPYING.LIB dc/dc-proto.h dc/dc-regdef.h dc/dc.h
+	  dc/array.c dc/dc.c dc/eval.c dc/misc.c dc/numeric.c dc/stack.c
+	  dc/string.c doc/dc.1 doc/dc.texi:
+	  update FSF address in copyright notices
+
+Wed May 25 19:39:46 2005 Ken Pizzini <ken@gnu.org>
+
+	* dc/stack.c: If a register is used for an array, its corresponding
+	  stack could be auto-created in the DC_UNINITIALIZED state; handle
+	  this situation gracefully.  Thanks to Ben Collerson
+	  (http://bur.st/~benc/) for the bug report.
+
+Wed Dec 31 07:26:00 2003 Phil Nelson  <phil@cs.wwu.edu>
+
+	* Makefile.am: add depcomp
+
+	* {bc,dc,lib}/Makefile.am: CFLAGS -> AM_CFLAGS, YFLAGS -> AM_YFLAGS
+
+	* bc/*: consistent copyright
+
+Fri May  9 21:52:46 2003 Ken Pizzini <ken@gnu.org>
+
+	* dc/dc-proto.h dc/dc.c dc/eval.c: add tail-recursion optimization
+
+	* dc/numeric.c: clean up handling of conditional includes/defines;
+	  editorial fix to comment; trivial (indentation, mostly) clean-up of
+	  out_char() function [gratuitious; commit was accidental and I'm
+	  adding this note to a replacement log message]
+
+	* dc/misc.c: fixed spelling and grammatical errors in comment
+
+	* dc/dc-regdef.h: simplify the handling of UCHAR_MAX/DC_REGCOUNT
+	  defaults
+
+Thu Apr 17 16:25:35 2003 Phil Nelson  <phil@cs.wwu.edu>
+
+	* bc/{execute.c, proto.h, util.c}: char -> int in a few
+	  places dealing with isdigit and getchar(), updated copyright 
+
+	* bc/main.c: minor formatting changes, updated copyright
+
+	* bc/libmath.b, doc/{bc.1,bc.texi}: updated copyright
+
+Mon Mar 31 22:19:00 2003  Phil Nelson  <phil@cs.wwu.edu>
+
+	* doc/{bc.1,bc.texi} Fix a couple of typos.
+	* bc/main.c: exit value changed when exiting from interrupt.
+
+Tue Mar 4 09:38:00 2003  Phil Nelson  <phil@cs.wwu.edu>
+
+	* bc/libmath.b: Add one level recursion to each function to
+	  get ibase set to 10 (decimal) if called with other ibases.
+
+Mon Nov 11 09:15:00 2002  Phil Nelson  <phil@cs.wwu.edu>
+
+	* doc/{bc.1,bc.texi} Fix documentation about array parameters.
+
+Tue Mar 19 11:22:06 2002  Phil Nelson  <phil@cs.wwu.edu>
+
+	* bc/{bc.y,bcdefs.h,scan.l}: Add void functions.
+	* doc/{bc.1,bc.texi}:  Document void functions.
+	* bc/util.c:  Fix bug in AVL routines.
+
+Wed May 23 08:40:00 2001  Phil Nelson  <phil@cs.wwu.edu>
+
+	* Makefile.am, */Makefile.am, configure.in: Add gcc specific
+	  flags only if using gcc.
+	* bc/{bc.y,sbc.y,bcdefs.h,const.h,execute.c,global.[ch],proto.h, 
+	      main.c,util.c}:  Removal of buffer overflow, new extern
+	  and initialization code. New dynamic buffer manipulation.
+	* bc/load.c: correct char extraction.
+	* bc/storage.c: correct expansion of variables and arrays.
+
+Sun May 13 19:29:43 2001 Ken Pizzini <ken@gnu.org>
+
+	* dc/array.c: minor optimization: stop scanning array entry indicies
+	  if we step beyond the target index
+
+Sun May 13 19:09:31 2001 Ken Pizzini <ken@gnu.org>
+
+	* dc/dc.c: traditional dc implementations drop into reading stdin
+	  after processing command-line files; defer to tradition
+
+Sat Feb 17 22:41:14 2001  Phil Nelson  <phil@cs.wwu.edu>
+
+	* bc/{main.c} Add case 0 for long options that set variables.
+	  Correct spelling in usage statement.
+
+Mon Jan 22 18:33:43 2001  Phil Nelson  <phil@cs.wwu.edu>
+
+	* bc/main.c: Make sure signal code doesn't stomp on errno.
+	* bc/load.c: Make save_addr in load_code() static since it
+	  is now possible to call load_code() multiple times in a single
+	  function.
+
+Fri Jan 19 10:33:13 2001  Phil Nelson  <phil@cs.wwu.edu>
+
+	* bc/{main.c,execute.c}: Don't use stdio calls in signal
+	  handlers.  Call write directly and move code.
+
+Wed Jan 10 11:33:51 2001  Phil Nelson  <phil@cs.wwu.edu>
+
+	* lib/getopt.c: Include string.h if available.
+	  lib/number.c: (bcmath change) Include string.h if available.
+
 Wed Sep 27 17:19:48 2000  Phil Nelson  <phil@cs.wwu.edu>
 
 	* doc/bc.texi: Added new file. Mainly translated from bc.1
@@ -1041,3 +1290,4 @@ Tue Oct 29 10:06:32 1991  Phil Nelson  (phil at cs.wwu.edu)
 	* Called current version 1.00.
 
 	* Submitted GNU bc-1.00 to comp.sources.reviewed
+

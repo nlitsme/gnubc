@@ -3,7 +3,7 @@
 SUBDIRS = lib bc dc doc
 
 MAINTAINERCLEANFILES =  aclocal.m4 config.h.in configure Makefile.in \
-			$(distdir).tar.gz h/number.h
+			stamp-h $(distdir).tar.gz h/number.h depcomp missing
 
 dist-hook:
 	mkdir $(distdir)/h $(distdir)/Examples $(distdir)/Test

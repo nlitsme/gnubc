@@ -9,6 +9,6 @@ LDADD = ../lib/libbc.a
 
 MAINTAINERCLEANFILES = Makefile.in
 
-CFLAGS = @CFLAGS@ -Wall -funsigned-char
+AM_CFLAGS = @CFLAGS@
 
 $(PROGRAMS): $(LDADD)

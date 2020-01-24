@@ -1,7 +1,6 @@
-/* libmath.b for GNU bc.  */
-
 /*  This file is part of GNU bc.
-    Copyright (C) 1991, 1992, 1993, 1997 Free Software Foundation, Inc.
+
+    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,10 +13,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to
+    along with this program; see the file COPYING.  If not, write to:
       The Free Software Foundation, Inc.
-      59 Temple Place, Suite 330
-      Boston, MA 02111 USA
+      Foundation, Inc.  51 Franklin Street, Fifth Floor,
+      Boston, MA 02110-1301  USA
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -28,6 +27,7 @@
        
 *************************************************************************/
 
+/* libmath.b for bc.  */
 
 scale = 20
 
@@ -37,7 +37,7 @@ scale = 20
 */
 
 define e(x) {
-  auto  a, d, e, f, i, m, n, v, z
+  auto  a, b, d, e, f, i, m, n, v, z
 
   /* a - holds x^y of x^y/y! */
   /* d - holds y! */
@@ -48,6 +48,16 @@ define e(x) {
   /* i - iteration count. */
   /* n - the scale to compute the sum. */
   /* z - orignal scale. */
+  /* b - holds the original ibase. */
+
+  /* Non base 10 ibase? */
+  if (ibase != A) {
+     b = ibase;
+     ibase = A;
+     v = e(x);
+     ibase = b;
+     return (v);
+  }
 
   /* Check the sign of x. */
   if (x<0) {
@@ -89,7 +99,16 @@ define e(x) {
 */
 
 define l(x) {
-  auto e, f, i, m, n, v, z
+  auto b, e, f, i, m, n, v, z
+
+  /* Non base 10 ibase? */
+  if (ibase != A) {
+     b = ibase;
+     ibase = A;
+     v = l(x);
+     ibase = b;
+     return (v);
+  }
 
   /* return something for the special case. */
   if (x <= 0) return ((1 - 10^scale)/1)
@@ -128,7 +147,16 @@ define l(x) {
    sin(x) = x - x^3/3! + x^5/5! - x^7/7! ... */
 
 define s(x) {
-  auto  e, i, m, n, s, v, z
+  auto  b, e, i, m, n, s, v, z
+
+  /* Non base 10 ibase? */
+  if (ibase != A) {
+     b = ibase;
+     ibase = A;
+     v = s(x);
+     ibase = b;
+     return (v);
+  }
 
   /* precondition x. */
   z = scale 
@@ -160,7 +188,17 @@ define s(x) {
 
 /* Cosine : cos(x) = sin(x+pi/2) */
 define c(x) {
-  auto v, z;
+  auto b, v, z;
+
+  /* Non base 10 ibase? */
+  if (ibase != A) {
+     b = ibase;
+     ibase = A;
+     v = c(x);
+     ibase = b;
+     return (v);
+  }
+
   z = scale;
   scale = scale*1.2;
   v = s(x+a(1)*2);
@@ -174,7 +212,7 @@ define c(x) {
      atan(x) = x - x^3/3 + x^5/5 - x^7/7 + ...   */
 
 define a(x) {
-  auto a, e, f, i, m, n, s, v, z
+  auto a, b, e, f, i, m, n, s, v, z
 
   /* a is the value of a(.2) if it is needed. */
   /* f is the value to multiply by a in the return. */
@@ -185,6 +223,15 @@ define a(x) {
   /* n is the numerator value for the series element. */
   /* s is -x*x. */
   /* z is the saved user's scale. */
+
+  /* Non base 10 ibase? */
+  if (ibase != A) {
+     b = ibase;
+     ibase = A;
+     v = a(x);
+     ibase = b;
+     return (v);
+  }
 
   /* Negative x? */
   m = 1;
@@ -249,6 +296,15 @@ define a(x) {
 define j(n,x) {
   auto a, b, d, e, f, i, m, s, v, z
 
+  /* Non base 10 ibase? */
+  if (ibase != A) {
+     b = ibase;
+     ibase = A;
+     v = j(n,x);
+     ibase = b;
+     return (v);
+  }
+
   /* Make n an integer and check for negative n. */
   z = scale;
   scale = 0;
@@ -257,10 +313,6 @@ define j(n,x) {
     n = -n;
     if (n%2 == 1) m = 1;
   }
-
-  /* save ibase */
-  b = ibase;
-  ibase = A;
 
   /* Compute the factor of x^n/(2^n*n!) */
   f = 1;
@@ -277,7 +329,6 @@ define j(n,x) {
   for (i=1; 1; i++) {
     e =  e * s / i / (n+i);
     if (e == 0) {
-       ibase = b;
        scale = z
        if (m) return (-f*v/1);
        return (f*v/1);

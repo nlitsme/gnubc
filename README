@@ -1,3 +1,18 @@
+Improvements over the original bc:
+
+ * support hexadecimal numbers: 0xABCD,  or 0xabcd
+ * support binary numbers: 0b1010101
+ * support octal numbers: 0777
+ * support scientific notation:  1.23e-1  or  4.56E10
+ * added 'and', 'or' and 'xor' bitwise operators
+ * when a hex, binary or octal number is encountered, the output
+   will be the decimal number plus the last value encoutered.
+ * added a commandline '-e' eval expression option.
+ * more windows friendly: support CR in input
+ * added 'pi'
+ * added 'modinv' and 'gcd' functions.
+
+
 GNU bc version 1.07:
 
 Extra configuration options:

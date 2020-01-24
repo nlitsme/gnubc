@@ -4,6 +4,8 @@
 @settitle bc Command Manual
 @c %**end of header
 
+@include texi-ver.incl
+
 @c This file has the new style title page commands.
 @c Run `makeinfo' rather than `texinfo-format-buffer'.
 
@@ -22,7 +24,7 @@
 @titlepage
 @title @command{bc}
 @subtitle an arbitrary precision calculator language
-@subtitle version 1.06
+@subtitle version @value{BC_VERSION}
 
 @author Philip A. Nelson
 @page
@@ -1045,5 +1047,3 @@ multi-line feature.  Any other value of this variable that is less than
 
 @contents
 @bye
-
-

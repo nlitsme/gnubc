@@ -4,6 +4,8 @@
 @settitle dc, an arbitrary precision calculator
 @c %**end of header
 
+@include texi-ver.incl
+
 @c This file has the new style title page commands.
 @c Run `makeinfo' rather than `texinfo-format-buffer'.
 
@@ -59,6 +61,7 @@ by the Foundation.
 
 @titlepage
 @title dc, an arbitrary precision calculator
+@subtitle version @value{DC_VERSION}
 
 @author by Ken Pizzini
 @author original manual by Richard Stallman

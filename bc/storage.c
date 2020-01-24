@@ -42,7 +42,7 @@ init_storage ()
   /* Functions: we start with none and ask for more. */
   f_count = 0;
   more_functions ();
-  f_names[0] = "(main)";
+  f_names[0] = (char *)"(main)";
 
   /* Variables. */
   v_count = 0;
@@ -364,9 +364,9 @@ get_var (var_name)
    the index into the bc array. */
 
 bc_num *
-get_array_num (var_index, index)
+get_array_num (var_index, idx)
      int var_index;
-     long  index;
+     long  idx;
 {
   bc_var_array *ary_ptr;
   bc_array *a_var;
@@ -393,8 +393,8 @@ get_array_num (var_index, index)
   }
 
   /* Get the index variable. */
-  sub[0] = index & NODE_MASK;
-  ix = index >> NODE_SHIFT;
+  sub[0] = idx & NODE_MASK;
+  ix = idx >> NODE_SHIFT;
   log = 1;
   while (ix > 0 || log < a_var->a_depth)
     {
@@ -580,16 +580,16 @@ store_array (var_name)
      int var_name;
 {
   bc_num *num_ptr;
-  long index;
+  long idx;
 
   if (!check_stack(2)) return;
-  index = bc_num2long (ex_stack->s_next->s_num);
-  if (index < 0 || index > BC_DIM_MAX ||
-      (index == 0 && !bc_is_zero(ex_stack->s_next->s_num))) 
+  idx = bc_num2long (ex_stack->s_next->s_num);
+  if (idx < 0 || idx > BC_DIM_MAX ||
+      (idx == 0 && !bc_is_zero(ex_stack->s_next->s_num))) 
     rt_error ("Array %s subscript out of bounds.", a_names[var_name]);
   else
     {
-      num_ptr = get_array_num (var_name, index);
+      num_ptr = get_array_num (var_name, idx);
       if (num_ptr != NULL)
 	{
 	  bc_free_num (num_ptr);
@@ -660,16 +660,16 @@ load_array (var_name)
      int var_name;
 {
   bc_num *num_ptr;
-  long   index;
+  long   idx;
 
   if (!check_stack(1)) return;
-  index = bc_num2long (ex_stack->s_num);
-  if (index < 0 || index > BC_DIM_MAX ||
-     (index == 0 && !bc_is_zero(ex_stack->s_num))) 
+  idx = bc_num2long (ex_stack->s_num);
+  if (idx < 0 || idx > BC_DIM_MAX ||
+     (idx == 0 && !bc_is_zero(ex_stack->s_num))) 
     rt_error ("Array %s subscript out of bounds.", a_names[var_name]);
   else
     {
-      num_ptr = get_array_num (var_name, index);
+      num_ptr = get_array_num (var_name, idx);
       if (num_ptr != NULL)
 	{
 	  pop();
@@ -741,17 +741,17 @@ decr_array (var_name)
      int var_name;
 {
   bc_num *num_ptr;
-  long   index;
+  long   idx;
 
   /* It is an array variable. */
   if (!check_stack (1)) return;
-  index = bc_num2long (ex_stack->s_num);
-  if (index < 0 || index > BC_DIM_MAX ||
-     (index == 0 && !bc_is_zero (ex_stack->s_num))) 
+  idx = bc_num2long (ex_stack->s_num);
+  if (idx < 0 || idx > BC_DIM_MAX ||
+     (idx == 0 && !bc_is_zero (ex_stack->s_num))) 
     rt_error ("Array %s subscript out of bounds.", a_names[var_name]);
   else
     {
-      num_ptr = get_array_num (var_name, index);
+      num_ptr = get_array_num (var_name, idx);
       if (num_ptr != NULL)
 	{
 	  pop ();
@@ -824,16 +824,16 @@ incr_array (var_name)
      int var_name;
 {
   bc_num *num_ptr;
-  long   index;
+  long   idx;
 
   if (!check_stack (1)) return;
-  index = bc_num2long (ex_stack->s_num);
-  if (index < 0 || index > BC_DIM_MAX ||
-      (index == 0 && !bc_is_zero (ex_stack->s_num))) 
+  idx = bc_num2long (ex_stack->s_num);
+  if (idx < 0 || idx > BC_DIM_MAX ||
+      (idx == 0 && !bc_is_zero (ex_stack->s_num))) 
     rt_error ("Array %s subscript out of bounds.", a_names[var_name]);
   else
     {
-      num_ptr = get_array_num (var_name, index);
+      num_ptr = get_array_num (var_name, idx);
       if (num_ptr != NULL)
 	{
 	  pop ();
@@ -991,8 +991,8 @@ copy_array (ary)
    variable. */
 
 void
-process_params (pc, func)
-     program_counter *pc;
+process_params (progctr, func)
+     program_counter *progctr;
      int func;
 {
   char ch;
@@ -1005,7 +1005,7 @@ process_params (pc, func)
   /* Get the parameter names from the function. */
   params = functions[func].f_params;
 
-  while ((ch = byte(pc)) != ':')
+  while ((ch = byte(progctr)) != ':')
     {
       if (params != NULL)
 	{

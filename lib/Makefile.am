@@ -1,6 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 noinst_LIBRARIES = libbc.a
-bin_PROGRAMS = testmul
 
 INCLUDES = -I. -I.. -I$(srcdir)/../h
 
@@ -11,6 +10,7 @@ DEFS = @DEFS@ $(DEFSADD)
 AM_CFLAGS = @CFLAGS@
 
 MAINTAINERCLEANFILES = Makefile.in number.c
+CLEANFILES = testmul specialnumber muldigits.h
 
 newnumber.o: number.c muldigits.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c -DMULDIGITS -o newnumber.o $(srcdir)/number.c
@@ -24,4 +24,3 @@ testmul: testmul.o number.o
 
 specialnumber: newnumber.o
 	cp newnumber.o number.o
-

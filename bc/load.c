@@ -51,10 +51,10 @@ init_load ()
 
 /* addbyte adds one BYTE to the current code segment. */
 void
-addbyte (byte)
-     int byte;
+addbyte (thebyte)
+     int thebyte;
 {
-  int pc;
+  int prog_addr;
   bc_function *f;
   char *new_body;
 
@@ -62,10 +62,10 @@ addbyte (byte)
   if (had_error) return;
 
   /* Calculate the segment and offset. */
-  pc = load_adr.pc_addr++;
+  prog_addr = load_adr.pc_addr++;
   f = &functions[load_adr.pc_func];
 
-  if (pc >= f->f_body_size)
+  if (prog_addr >= f->f_body_size)
     {
       f->f_body_size *= 2;
       new_body = (char *) bc_malloc (f->f_body_size);
@@ -74,8 +74,8 @@ addbyte (byte)
       f->f_body = new_body;
     }
 
-  /* Store the byte. */
-  f->f_body[pc] = (char) (byte & 0xff);
+  /* Store the thebyte. */
+  f->f_body[prog_addr] = (char) (thebyte & 0xff);
   f->f_code_size++;
 }
 
@@ -126,7 +126,7 @@ def_label (lab)
 
 long
 long_val (str)
-     char **str;
+     const char **str;
 { int  val = 0;
   char neg = FALSE;
 
@@ -149,9 +149,9 @@ long_val (str)
 
 void
 load_code (code)
-     char *code;
+     const char *code;
 {
-  char *str;
+  const char *str;
   long  ap_name;	/* auto or parameter name. */
   long  label_no;
   long  vaf_name;	/* variable, array or function number. */

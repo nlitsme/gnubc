@@ -58,8 +58,8 @@ static struct option long_options[] =
 };
 
 
-void
-usage (char *progname)
+static void
+usage (const char *progname)
 {
   printf ("usage: %s [options] [file ...]\n%s%s%s%s%s%s%s", progname,
           "  -h  --help         print this usage and exit\n",
@@ -72,7 +72,7 @@ usage (char *progname)
 }
 
 
-void
+static void
 parse_args (argc, argv)
      int argc;
      char **argv;
@@ -163,7 +163,7 @@ main (argc, argv)
      char *argv[];
 {
   char *env_value;
-  char *env_argv[30];
+  const char *env_argv[30];
   int   env_argc;
   
   /* Interactive? */

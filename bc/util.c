@@ -43,7 +43,7 @@
 
 char *
 strcopyof (str)
-     char *str;
+     const char *str;
 {
   char *temp;
 
@@ -274,7 +274,7 @@ init_gen ()
 
 void
 generate (str)
-      char *str;
+      const char *str;
 {
   did_gen = TRUE;
   if (compile_only)
@@ -382,7 +382,7 @@ out_schar (ch)
 id_rec *
 find_id (tree, id)
      id_rec *tree;
-     char   *id;
+     const char   *id;
 {
   int cmp_result;
   
@@ -602,7 +602,8 @@ lookup (name, namekind)
     case FUNCTDEF:
       if (id->f_name != 0)
 	{
-	  free(name);
+	  if (namekind != FUNCT)
+	    free(name);
 	  /* Check to see if we are redefining a math lib function. */ 
 	  if (use_math && namekind == FUNCTDEF && id->f_name <= 6)
 	    id->f_name = next_func++;
@@ -693,19 +694,19 @@ out_of_memory()
 #ifndef VARARGS
 #ifdef __STDC__
 void
-yyerror (char *str, ...)
+yyerror (const char *str, ...)
 #else
 void
 yyerror (str)
-     char *str;
+     const char *str;
 #endif
 #else
 void
 yyerror (str, va_alist)
-     char *str;
+     const char *str;
 #endif
 {
-  char *name;
+  const char *name;
   va_list args;
 
 #ifndef VARARGS   
@@ -731,19 +732,19 @@ yyerror (str, va_alist)
 #ifndef VARARGS
 #ifdef __STDC__
 void 
-warn (char *mesg, ...)
+warn (const char *mesg, ...)
 #else
 void
 warn (mesg)
-     char *mesg;
+     const char *mesg;
 #endif
 #else
 void
 warn (mesg, va_alist)
-     char *mesg;
+     const char *mesg;
 #endif
 {
-  char *name;
+  const char *name;
   va_list args;
 
 #ifndef VARARGS   
@@ -781,16 +782,16 @@ warn (mesg, va_alist)
 #ifndef VARARGS
 #ifdef __STDC__
 void
-rt_error (char *mesg, ...)
+rt_error (const char *mesg, ...)
 #else
 void
 rt_error (mesg)
-     char *mesg;
+     const char *mesg;
 #endif
 #else
 void
 rt_error (mesg, va_alist)
-     char *mesg;
+     const char *mesg;
 #endif
 {
   va_list args;
@@ -817,16 +818,16 @@ rt_error (mesg, va_alist)
 #ifndef VARARGS
 #ifdef __STDC__
 void
-rt_warn (char *mesg, ...)
+rt_warn (const char *mesg, ...)
 #else
 void
 rt_warn (mesg)
-     char *mesg;
+     const char *mesg;
 #endif
 #else
 void
 rt_warn (mesg, va_alist)
-     char *mesg;
+     const char *mesg;
 #endif
 {
   va_list args;

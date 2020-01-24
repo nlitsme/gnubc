@@ -16,18 +16,22 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with this program; if not, write to the Free Software Foundation,
 dnl Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-AC_INIT(doc/bc.1)
-AM_INIT_AUTOMAKE("bc", "1.06.94")
+m4_define([bc_version], 1.06.95)
+m4_define([dc_version], 1.3.95)
+
+AC_INIT(bc, bc_version)
+AC_CONFIG_SRCDIR(doc/bc.1)
+AM_INIT_AUTOMAKE([dist-bzip2])
 AM_CONFIG_HEADER(config.h)
 
-AC_DEFINE([DC_VERSION], "1.3.94",
+AC_DEFINE([DC_VERSION], "dc_version",
 	  [Define the dc version number.])
 
 AC_DEFINE([BC_COPYRIGHT],
 	  ["Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006 Free Software Foundation, Inc."],
 	  [Define the bc copyright line.])
 
-AC_DEFINE_UNQUOTED([DC_COPYRIGHT], 
+AC_DEFINE([DC_COPYRIGHT], 
           ["Copyright 1994, 1997, 1998, 2000, 2001, 2004, 2005, 2006 Free Software Foundation, Inc."],
 	  [Define the dc copyright line.])
 
@@ -118,4 +122,6 @@ case $GCC in
 esac
 
 AC_SUBST(READLINELIB)
-AC_OUTPUT(Makefile bc/Makefile dc/Makefile doc/Makefile lib/Makefile)
+AC_SUBST(BC_VERSION, bc_version)
+AC_SUBST(DC_VERSION, dc_version)
+AC_OUTPUT(Makefile bc/Makefile dc/Makefile doc/Makefile doc/texi-ver.incl lib/Makefile)

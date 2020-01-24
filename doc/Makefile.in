@@ -34,14 +34,15 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 subdir = doc
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in texinfo.tex
+DIST_COMMON = $(dist_man_MANS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(srcdir)/texi-ver.incl.in texinfo.tex
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = texi-ver.incl
 SOURCES =
 DIST_SOURCES =
 INFO_DEPS = $(srcdir)/bc.info $(srcdir)/dc.info
@@ -59,7 +60,7 @@ DVIPS = dvips
 am__installdirs = "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)"
 man1dir = $(mandir)/man1
 NROFF = nroff
-MANS = $(man_MANS)
+MANS = $(dist_man_MANS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
@@ -69,12 +70,14 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BC_VERSION = @BC_VERSION@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
+DC_VERSION = @DC_VERSION@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
@@ -141,11 +144,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 info_TEXINFOS = bc.texi dc.texi
 MAINTAINERCLEANFILES = Makefile.in
-
-# FIXME: remove this when automake has been fixed to include these
-# files automatically
-EXTRA_DIST = bc.1 dc.1
-man_MANS = bc.1 dc.1
+dist_man_MANS = bc.1 dc.1
 all: all-am
 
 .SUFFIXES:
@@ -179,6 +178,8 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+texi-ver.incl: $(top_builddir)/config.status $(srcdir)/texi-ver.incl.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 .texi.info:
 	restore=: && backupdir="$(am__leading_dot)am$$$$" && \
@@ -492,6 +493,9 @@ uninstall-man: uninstall-man1
 	uninstall uninstall-am uninstall-info-am uninstall-man \
 	uninstall-man1
 
+
+bc.dvi bc.pdf bc.html $(srcdir)/bc.info \
+dc.dvi dc.pdf dc.html $(srcdir)/dc.info :  texi-ver.incl
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -25,6 +25,12 @@
  * make use of bc's numeric routines.
  */
 
+/* make all the header files see that these are really the same thing;
+ * this is acceptable because everywhere else dc_number is just referenced
+ * as a pointer-to-incomplete-structure type
+ */
+#define dc_number bc_struct
+
 #include "config.h"
 
 #include <stdio.h>
@@ -64,7 +70,11 @@ static void out_char (int);
 int std_only = FALSE;
 
 /* convert an opaque dc_num into a real bc_num */
-#define CastNum(x)	((bc_num)(x))
+/* by a freak accident, these are now no-op mappings,
+ * but leave the notation here in case that changes later
+ * */
+#define CastNum(x)		(x)
+#define CastNumPtr(x)	(x)
 
 /* add two dc_nums, place into *result;
  * return DC_SUCCESS on success, DC_DOMAIN_ERROR on domain error
@@ -76,8 +86,8 @@ dc_add DC_DECLARG((a, b, kscale, result))
 	int kscale ATTRIB((unused)) DC_DECLSEP
 	dc_num *result DC_DECLEND
 {
-	bc_init_num((bc_num *)result);
-	bc_add(CastNum(a), CastNum(b), (bc_num *)result, 0);
+	bc_init_num(CastNumPtr(result));
+	bc_add(CastNum(a), CastNum(b), CastNumPtr(result), 0);
 	return DC_SUCCESS;
 }
 
@@ -91,8 +101,8 @@ dc_sub DC_DECLARG((a, b, kscale, result))
 	int kscale ATTRIB((unused)) DC_DECLSEP
 	dc_num *result DC_DECLEND
 {
-	bc_init_num((bc_num *)result);
-	bc_sub(CastNum(a), CastNum(b), (bc_num *)result, 0);
+	bc_init_num(CastNumPtr(result));
+	bc_sub(CastNum(a), CastNum(b), CastNumPtr(result), 0);
 	return DC_SUCCESS;
 }
 
@@ -106,8 +116,8 @@ dc_mul DC_DECLARG((a, b, kscale, result))
 	int kscale DC_DECLSEP
 	dc_num *result DC_DECLEND
 {
-	bc_init_num((bc_num *)result);
-	bc_multiply(CastNum(a), CastNum(b), (bc_num *)result, kscale);
+	bc_init_num(CastNumPtr(result));
+	bc_multiply(CastNum(a), CastNum(b), CastNumPtr(result), kscale);
 	return DC_SUCCESS;
 }
 
@@ -121,8 +131,8 @@ dc_div DC_DECLARG((a, b, kscale, result))
 	int kscale DC_DECLSEP
 	dc_num *result DC_DECLEND
 {
-	bc_init_num((bc_num *)result);
-	if (bc_divide(CastNum(a), CastNum(b), (bc_num *)result, kscale)){
+	bc_init_num(CastNumPtr(result));
+	if (bc_divide(CastNum(a), CastNum(b), CastNumPtr(result), kscale)){
 		fprintf(stderr, "%s: divide by zero\n", progname);
 		return DC_DOMAIN_ERROR;
 	}
@@ -141,10 +151,10 @@ dc_divrem DC_DECLARG((a, b, kscale, quotient, remainder))
 	dc_num *quotient DC_DECLSEP
 	dc_num *remainder DC_DECLEND
 {
-	bc_init_num((bc_num *)quotient);
-	bc_init_num((bc_num *)remainder);
+	bc_init_num(CastNumPtr(quotient));
+	bc_init_num(CastNumPtr(remainder));
 	if (bc_divmod(CastNum(a), CastNum(b),
-						(bc_num *)quotient, (bc_num *)remainder, kscale)){
+						CastNumPtr(quotient), CastNumPtr(remainder), kscale)){
 		fprintf(stderr, "%s: divide by zero\n", progname);
 		return DC_DOMAIN_ERROR;
 	}
@@ -161,8 +171,8 @@ dc_rem DC_DECLARG((a, b, kscale, result))
 	int kscale DC_DECLSEP
 	dc_num *result DC_DECLEND
 {
-	bc_init_num((bc_num *)result);
-	if (bc_modulo(CastNum(a), CastNum(b), (bc_num *)result, kscale)){
+	bc_init_num(CastNumPtr(result));
+	if (bc_modulo(CastNum(a), CastNum(b), CastNumPtr(result), kscale)){
 		fprintf(stderr, "%s: remainder by zero\n", progname);
 		return DC_DOMAIN_ERROR;
 	}
@@ -177,9 +187,9 @@ dc_modexp DC_DECLARG((base, expo, mod, kscale, result))
 	int kscale DC_DECLSEP
 	dc_num *result DC_DECLEND
 {
-	bc_init_num((bc_num *)result);
+	bc_init_num(CastNumPtr(result));
 	if (bc_raisemod(CastNum(base), CastNum(expo), CastNum(mod),
-					(bc_num *)result, kscale)){
+					CastNumPtr(result), kscale)){
 		if (bc_is_zero(CastNum(mod)))
 			fprintf(stderr, "%s: remainder by zero\n", progname);
 		return DC_DOMAIN_ERROR;
@@ -197,8 +207,8 @@ dc_exp DC_DECLARG((a, b, kscale, result))
 	int kscale DC_DECLSEP
 	dc_num *result DC_DECLEND
 {
-	bc_init_num((bc_num *)result);
-	bc_raise(CastNum(a), CastNum(b), (bc_num *)result, kscale);
+	bc_init_num(CastNumPtr(result));
+	bc_raise(CastNum(a), CastNum(b), CastNumPtr(result), kscale);
 	return DC_SUCCESS;
 }
 
@@ -219,7 +229,7 @@ dc_sqrt DC_DECLARG((value, kscale, result))
 		bc_free_num(&tmp);
 		return DC_DOMAIN_ERROR;
 	}
-	*((bc_num *)result) = tmp;
+	*(CastNumPtr(result)) = tmp;
 	return DC_SUCCESS;
 }
 
@@ -267,8 +277,8 @@ dc_int2data DC_DECLARG((value))
 {
 	dc_data result;
 
-	bc_init_num((bc_num *)&result.v.number);
-	bc_int2num((bc_num *)&result.v.number, value);
+	bc_init_num(CastNumPtr(&result.v.number));
+	bc_int2num(CastNumPtr(&result.v.number), value);
 	result.dc_type = DC_NUMBER;
 	return result;
 }
@@ -359,7 +369,7 @@ dc_getnum DC_DECLARG((input, ibase, readahead))
 	bc_free_num(&base);
 	if (readahead)
 		*readahead = c;
-	full_result.v.number = (dc_num)result;
+	*CastNumPtr(&full_result.v.number) = result;
 	full_result.dc_type = DC_NUMBER;
 	return full_result;
 }
@@ -479,7 +489,7 @@ void
 dc_free_num DC_DECLARG((value))
 	dc_num *value DC_DECLEND
 {
-	bc_free_num((bc_num *)value);
+	bc_free_num(CastNumPtr(value));
 }
 
 /* return a duplicate of the number in the passed value */

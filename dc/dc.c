@@ -221,7 +221,7 @@ close:
  * an error message (if stderr is not known to be unhappy), and
  * ensure that the program exits with an error indication.
  */
-int
+static int
 flush_okay DC_DECLVOID()
 {
 	const char *errmsg = NULL;

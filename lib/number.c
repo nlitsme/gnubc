@@ -47,8 +47,8 @@
 #define bc_rt_error rt_error
 #define bc_out_of_memory out_of_memory
 
-_PROTOTYPE(void rt_warn, (char *mesg ,...));
-_PROTOTYPE(void rt_error, (char *mesg ,...));
+_PROTOTYPE(void rt_warn, (const char *mesg ,...));
+_PROTOTYPE(void rt_error, (const char *mesg ,...));
 _PROTOTYPE(void out_of_memory, (void));
 
 /* Storage used for special numbers. */
@@ -661,8 +661,7 @@ new_sub_num (length, scale, value)
 }
 
 static void
-_bc_simp_mul (bc_num n1, int n1len, bc_num n2, int n2len, bc_num *prod,
-	      int full_scale)
+_bc_simp_mul (bc_num n1, int n1len, bc_num n2, int n2len, bc_num *prod)
 {
   char *n1ptr, *n2ptr, *pvptr;
   char *n1end, *n2end;		/* To the end of n1 and n2. */
@@ -762,8 +761,7 @@ _bc_shift_addsub (bc_num accum, bc_num val, int shift, int sub)
    B is the base of storage, number of digits in u1,u0 close to equal.
 */
 static void
-_bc_rec_mul (bc_num u, int ulen, bc_num v, int vlen, bc_num *prod,
-	     int full_scale)
+_bc_rec_mul (bc_num u, int ulen, bc_num v, int vlen, bc_num *prod)
 { 
   bc_num u0, u1, v0, v1;
   int u0len, v0len;
@@ -775,7 +773,7 @@ _bc_rec_mul (bc_num u, int ulen, bc_num v, int vlen, bc_num *prod,
   if ((ulen+vlen) < mul_base_digits
       || ulen < MUL_SMALL_DIGITS
       || vlen < MUL_SMALL_DIGITS ) {
-    _bc_simp_mul (u, ulen, v, vlen, prod, full_scale);
+    _bc_simp_mul (u, ulen, v, vlen, prod);
     return;
   }
 
@@ -820,17 +818,17 @@ _bc_rec_mul (bc_num u, int ulen, bc_num v, int vlen, bc_num *prod,
   if (m1zero)
     m1 = bc_copy_num (_zero_);
   else
-    _bc_rec_mul (u1, u1->n_len, v1, v1->n_len, &m1, 0);
+    _bc_rec_mul (u1, u1->n_len, v1, v1->n_len, &m1);
 
   if (bc_is_zero(d1) || bc_is_zero(d2))
     m2 = bc_copy_num (_zero_);
   else
-    _bc_rec_mul (d1, d1len, d2, d2len, &m2, 0);
+    _bc_rec_mul (d1, d1len, d2, d2len, &m2);
 
   if (bc_is_zero(u0) || bc_is_zero(v0))
     m3 = bc_copy_num (_zero_);
   else
-    _bc_rec_mul (u0, u0->n_len, v0, v0->n_len, &m3, 0);
+    _bc_rec_mul (u0, u0->n_len, v0, v0->n_len, &m3);
 
   /* Initialize product */
   prodlen = ulen+vlen+1;
@@ -876,7 +874,7 @@ bc_multiply (n1, n2, prod, scale)
   prod_scale = MIN(full_scale,MAX(scale,MAX(n1->n_scale,n2->n_scale)));
 
   /* Do the multiply */
-  _bc_rec_mul (n1, len1, n2, len2, &pval, full_scale);
+  _bc_rec_mul (n1, len1, n2, len2, &pval);
 
   /* Assign to prod and clean up the number. */
   pval->n_sign = ( n1->n_sign == n2->n_sign ? PLUS : MINUS );
@@ -1471,7 +1469,7 @@ bc_out_num (num, o_base, out_char, leading_zero)
      int leading_zero;
 {
   char *nptr;
-  int  index, fdigit, pre_space;
+  int  ix, fdigit, pre_space;
   stk_rec *digits, *temp;
   bc_num int_part, frac_part, base, cur_dig, t_num, max_o_digit;
 
@@ -1487,7 +1485,7 @@ bc_out_num (num, o_base, out_char, leading_zero)
 	/* The number is in base 10, do it the fast way. */
 	nptr = num->n_value;
 	if (num->n_len > 1 || *nptr != 0)
-	  for (index=num->n_len; index>0; index--)
+	  for (ix=num->n_len; ix>0; ix--)
 	    (*out_char) (BCD_CHAR(*nptr++));
 	else
 	  nptr++;
@@ -1499,7 +1497,7 @@ bc_out_num (num, o_base, out_char, leading_zero)
 	if (num->n_scale > 0)
 	  {
 	    (*out_char) ('.');
-	    for (index=0; index<num->n_scale; index++)
+	    for (ix=0; ix<num->n_scale; ix++)
 	      (*out_char) (BCD_CHAR(*nptr++));
 	  }
       }
@@ -1594,16 +1592,16 @@ bc_num2long (num)
 {
   long val;
   char *nptr;
-  int  index;
+  int  i;
 
   /* Extract the int value, ignore the fraction. */
   val = 0;
   nptr = num->n_value;
-  for (index=num->n_len; (index>0) && (val<=(LONG_MAX/BASE)); index--)
+  for (i=num->n_len; (i>0) && (val<=(LONG_MAX/BASE)); i--)
     val = val*BASE + *nptr++;
 
   /* Check for overflow.  If overflow, return zero. */
-  if (index>0) val = 0;
+  if (i>0) val = 0;
   if (val < 0) val = 0;
 
   /* Return the value. */
@@ -1665,7 +1663,7 @@ char
 {
   char *str, *sptr;
   char *nptr;
-  int  index, signch;
+  int  i, signch;
 
   /* Allocate the string memory. */
   signch = ( num->n_sign == PLUS ? 0 : 1 );  /* Number of sign chars. */
@@ -1681,14 +1679,14 @@ char
 
   /* Load the whole number. */
   nptr = num->n_value;
-  for (index=num->n_len; index>0; index--)
+  for (i=num->n_len; i>0; i--)
     *sptr++ = BCD_CHAR(*nptr++);
 
   /* Now the fraction. */
   if (num->n_scale > 0)
     {
       *sptr++ = '.';
-      for (index=0; index<num->n_scale; index++)
+      for (i=0; i<num->n_scale; i++)
 	*sptr++ = BCD_CHAR(*nptr++);
     }
 

@@ -54,7 +54,7 @@ show_bc_version()
 
 void 
 warranty(prefix)
-     char *prefix;
+     const char *prefix;
 {
   printf ("\n%s", prefix);
   show_bc_version ();

@@ -60,16 +60,16 @@
 
 /* From execute.c */
 _PROTOTYPE(void stop_execution, (int));
-_PROTOTYPE(unsigned char byte, (program_counter *pc));
+_PROTOTYPE(unsigned char byte, (program_counter *pc_));
 _PROTOTYPE(void execute, (void));
 _PROTOTYPE(int prog_char, (void));
 _PROTOTYPE(int input_char, (void));
 _PROTOTYPE(void push_constant, (int (*in_char)(void), int conv_base));
-_PROTOTYPE(void push_b10_const, (program_counter *pc));
-_PROTOTYPE(void assign, (int c_code));
+_PROTOTYPE(void push_b10_const, (program_counter *pc_));
+_PROTOTYPE(void assign, (int c_code_));
 
 /* From util.c */
-_PROTOTYPE(char *strcopyof, (char *str));
+_PROTOTYPE(char *strcopyof, (const char *str));
 _PROTOTYPE(arg_list *nextarg, (arg_list *args, int val, int is_var));
 _PROTOTYPE(char *arg_str, (arg_list *args));
 _PROTOTYPE(char *call_str, (arg_list *args));
@@ -77,31 +77,31 @@ _PROTOTYPE(void free_args, (arg_list *args));
 _PROTOTYPE(void check_params, (arg_list *params, arg_list *autos));
 _PROTOTYPE(void set_genstr_size, (int));
 _PROTOTYPE(void init_gen, (void));
-_PROTOTYPE(void generate, (char *str));
+_PROTOTYPE(void generate, (const char *str));
 _PROTOTYPE(void run_code, (void));
 _PROTOTYPE(void out_char, (int ch));
 _PROTOTYPE(void out_schar, (int ch));
-_PROTOTYPE(id_rec *find_id, (id_rec *tree, char *id));
+_PROTOTYPE(id_rec *find_id, (id_rec *tree, const char *id));
 _PROTOTYPE(int insert_id_rec, (id_rec **root, id_rec *new_id));
 _PROTOTYPE(void init_tree, (void));
 _PROTOTYPE(int lookup, (char *name, int namekind));
 _PROTOTYPE(void *bc_malloc, (int));
 _PROTOTYPE(void out_of_memory, (void));
 _PROTOTYPE(void welcome, (void));
-_PROTOTYPE(void warranty, (char *));
+_PROTOTYPE(void warranty, (const char *));
 _PROTOTYPE(void show_bc_version, (void));
 _PROTOTYPE(void limits, (void));
-_PROTOTYPE(void yyerror, (char *str ,...));
-_PROTOTYPE(void warn, (char *mesg ,...));
-_PROTOTYPE(void rt_error, (char *mesg ,...));
-_PROTOTYPE(void rt_warn, (char *mesg ,...));
+_PROTOTYPE(void yyerror, (const char *str ,...));
+_PROTOTYPE(void warn, (const char *mesg ,...));
+_PROTOTYPE(void rt_error, (const char *mesg ,...));
+_PROTOTYPE(void rt_warn, (const char *mesg ,...));
 
 /* From load.c */
 _PROTOTYPE(void init_load, (void));
-_PROTOTYPE(void addbyte, (int byte));
+_PROTOTYPE(void addbyte, (int byte_));
 _PROTOTYPE(void def_label, (long lab));
-_PROTOTYPE(long long_val, (char **str));
-_PROTOTYPE(void load_code, (char *code));
+_PROTOTYPE(long long_val, (const char **str));
+_PROTOTYPE(void load_code, (const char *code));
 
 /* From main.c */
 _PROTOTYPE(int open_new_file, (void));
@@ -121,7 +121,7 @@ _PROTOTYPE(void push_copy, (bc_num num ));
 _PROTOTYPE(void push_num, (bc_num num ));
 _PROTOTYPE(char check_stack, (int depth ));
 _PROTOTYPE(bc_var *get_var, (int var_name ));
-_PROTOTYPE(bc_num *get_array_num, (int var_index, long index ));
+_PROTOTYPE(bc_num *get_array_num, (int var_index, long _index_ ));
 _PROTOTYPE(void store_var, (int var_name ));
 _PROTOTYPE(void store_array, (int var_name ));
 _PROTOTYPE(void load_var, (int var_name ));
@@ -133,7 +133,7 @@ _PROTOTYPE(void incr_array, (int var_name ));
 _PROTOTYPE(void auto_var, (int name ));
 _PROTOTYPE(void free_a_tree, (bc_array_node *root, int depth ));
 _PROTOTYPE(void pop_vars, (arg_list *list ));
-_PROTOTYPE(void process_params, (program_counter *pc, int func ));
+_PROTOTYPE(void process_params, (program_counter *_pc_, int func ));
 
 /* For the scanner and parser.... */
 _PROTOTYPE(int yyparse, (void));

@@ -48,10 +48,10 @@ stop_execution (sig)
 /* Get the current byte and advance the PC counter. */
 
 unsigned char
-byte (pc)
-     program_counter *pc;
+byte (p)
+     program_counter *p;
 {
-  return (functions[pc->pc_func].f_body[pc->pc_addr++]);
+  return (functions[p->pc_func].f_body[p->pc_addr++]);
 }
 
 
@@ -694,8 +694,8 @@ push_constant (in_char, conv_base)
    the constant. */
 
 void
-push_b10_const (pc)
-     program_counter *pc;
+push_b10_const (progctr)
+     program_counter *progctr;
 {
   bc_num build;
   program_counter look_pc;
@@ -704,7 +704,7 @@ push_b10_const (pc)
   char *ptr;
   
   /* Count the digits and get things ready. */
-  look_pc = *pc;
+  look_pc = *progctr;
   kdigits = 0;
   kscale  = 0;
   inchar = byte (&look_pc);
@@ -723,8 +723,8 @@ push_b10_const (pc)
 	}
     }
 
-  /* Get the first character again and move the pc. */
-  inchar = byte(pc);
+  /* Get the first character again and move the progctr. */
+  inchar = byte(progctr);
   
   /* Secial cases of 0, 1, and A-F single inputs. */
   if (kdigits == 1 && kscale == 0)
@@ -732,12 +732,12 @@ push_b10_const (pc)
       if (inchar == 0)
 	{
 	  push_copy (_zero_);
-	  inchar = byte(pc);
+	  inchar = byte(progctr);
 	  return;
 	}
       if (inchar == 1) {
       push_copy (_one_);
-      inchar = byte(pc);
+      inchar = byte(progctr);
       return;
     }
     if (inchar > 9)
@@ -745,7 +745,7 @@ push_b10_const (pc)
 	bc_init_num (&build);
 	bc_int2num (&build, inchar);
 	push_num (build);
-	inchar = byte(pc);
+	inchar = byte(progctr);
 	return;
       }
     }
@@ -772,7 +772,7 @@ push_b10_const (pc)
 	  else
 	    *ptr++ = inchar;
 	}
-      inchar = byte(pc);
+      inchar = byte(progctr);
     }
   push_num (build);
 }
@@ -781,11 +781,11 @@ push_b10_const (pc)
 /* Put the correct value on the stack for C_CODE.  Frees TOS num. */
 
 void
-assign (c_code)
-     char c_code;
+assign (code)
+     char code;
 {
   bc_free_num (&ex_stack->s_num);
-  if (c_code)
+  if (code)
     ex_stack->s_num = bc_copy_num (_one_);
   else
     ex_stack->s_num = bc_copy_num (_zero_);

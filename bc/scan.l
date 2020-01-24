@@ -316,7 +316,7 @@ limits return(Limits);
       }
 [a-z][a-z0-9_]* { yylval.s_value = strcopyof(yytext); return(NAME); }
 \"[^\"]*\"  {
- 	      unsigned char *look;
+ 	      const char *look;
 	      int count = 0;
 	      yylval.s_value = strcopyof(yytext);
 	      for (look = yytext; *look != 0; look++)
@@ -328,7 +328,7 @@ limits return(Limits);
 	      return(STRING);
 	    }
 {DIGIT}({DIGIT}|\\\n)*("."({DIGIT}|\\\n)*)?|"."(\\\n)*{DIGIT}({DIGIT}|\\\n)* {
-	      unsigned char *src, *dst;
+	      char *src, *dst;
 	      int len;
 	      /* remove a trailing decimal point. */
 	      len = strlen(yytext);

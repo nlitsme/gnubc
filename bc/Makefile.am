@@ -24,22 +24,20 @@ AM_YFLAGS = -d
 
 AM_CFLAGS = @CFLAGS@
 
-$(PROGRAMS): $(LIBBC)
+$(PROGRAMS): libmath.h $(LIBBC)
 
 scan.o: bc.h
 global.o: libmath.h
 
-libmath.h: libmath.b
+fbcOBJ = main.o bc.o scan.o execute.o load.o storage.o util.o warranty.o
+
+libmath.h: libmath.b $(fbcOBJ) $(LIBBC)
 	echo '{0}' > libmath.h
-	$(MAKE) fbc
+	$(MAKE) global.o
+	$(LINK) -o fbc $(fbcOBJ) global.o $(LIBBC) $(LIBL) $(READLINELIB) $(LIBS)
 	./fbc -c $(srcdir)/libmath.b </dev/null >libmath.h
 	$(srcdir)/fix-libmath_h
 	rm -f ./fbc ./global.o
-
-fbcOBJ = main.o bc.o scan.o execute.o global.o load.o storage.o util.o \
-         warranty.o
-fbc: $(fbcOBJ) $(LIBBC)
-	$(LINK) $(fbcOBJ) $(LIBBC) $(LIBL) $(READLINELIB) $(LIBS)
 
 sbcOBJ = main.o sbc.o scan.o execute.o global.o load.o storage.o util.o \
          warranty.o

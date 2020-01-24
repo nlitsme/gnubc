@@ -588,14 +588,16 @@ input_char (void)
   /* Classify and preprocess the input character. */
   if (isdigit(in_ch))
     return (in_ch - '0');
-  if (in_ch >= 'A' && in_ch <= 'F')
+  if (in_ch >= 'A' && in_ch <= 'Z')
     return (in_ch + 10 - 'A');
-  if (in_ch >= 'a' && in_ch <= 'f')
+  if (in_ch >= 'a' && in_ch <= 'z')
     return (in_ch + 10 - 'a');
   if (in_ch == '.' || in_ch == '+' || in_ch == '-')
     return (in_ch);
+  if (in_ch == '~')
+    return (':');
   if (in_ch <= ' ')
-    return (' ');
+    return ('~');
   
   return (':');
 }
@@ -625,7 +627,8 @@ push_constant (int (*in_char)(VOID), int conv_base)
   
   /* Get things ready. */
   in_ch = in_char();
-  while (in_ch == ' ')
+  /* ~ is space returned by input_char(), prog_char does not return spaces. */
+  while (in_ch == '~')
     in_ch = in_char();
 
   if (in_ch == '+')

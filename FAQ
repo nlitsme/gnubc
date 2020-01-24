@@ -25,3 +25,16 @@ on output.  So how can one get 255?  First, single digit numbers are
 not converted using ibase.  So A is always 10 (decimal).  The following
 code will always work.  "ibase=F+1; obase=A; FF" and that always prints
 255.
+
+3) Why is the scale variable ignored on multiply?
+
+That is the way POSIX specifics multiply.  Reread the documentation for
+the multiply operation and see that multiply uses the scales of the
+numbers multiplied to determine the scale of the result.
+
+4) bc's mod command is not working when I run with "bc -l".
+
+bc's mod (%) command works like integer remainder when scale is 0.
+The -l flag sets scale to 20 and that chanes how a % b is computed.
+Read the man page for exact details.
+

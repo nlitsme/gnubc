@@ -2,7 +2,7 @@
 .\" bc.1 - the *roff document processor source for the bc manual
 .\"
 .\" This file is part of GNU bc.
-.\" Copyright (C) 1991-1994, 1997, 2000, 2003, 2006 Free Software Foundation, Inc.
+.\" Copyright (C) 1991-1994, 1997, 2000, 2003, 2006, 2017 Free Software Foundation, Inc.
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -73,9 +73,9 @@ part and the fractional part.  All numbers are represented internally
 in decimal and all computation is done in decimal.  (This version
 truncates results from divide and multiply operations.)  There are two
 attributes of numbers, the length and the scale.  The length is the
-total number of significant decimal digits in a number and the scale
-is the total number of decimal digits after the decimal point.  For
-example:
+total number of decimal digits used by \fBbc\fR to represent a number
+and the scale is the total number of decimal digits after the decimal
+point.  For example:
 .nf
 .RS
  .000001 has a length of 6 and scale of 6.
@@ -122,15 +122,16 @@ detail later, are defined when encountered.)
 A simple expression is just a constant. \fBbc\fR converts constants
 into internal decimal numbers using the current input base, specified
 by the variable \fBibase\fR. (There is an exception in functions.)
-The legal values of \fBibase\fR are 2 through 16.  Assigning a
-value outside this range to \fBibase\fR will result in a value of 2
-or 16.  Input numbers may contain the characters 0-9 and A-F. (Note:
-They must be capitals.  Lower case letters are variable names.)
-Single digit numbers always have the value of the digit regardless of
-the value of \fBibase\fR. (i.e. A = 10.)  For multi-digit numbers,
-\fBbc\fR changes all input digits greater or equal to ibase to the
-value of \fBibase\fR-1.  This makes the number \fBFFF\fR always be
-the largest 3 digit number of the input base.
+The legal values of \fBibase\fR are 2 through 36. (Bases greater than
+16 are an extension.) Assigning a value outside this range to
+\fBibase\fR will result in a value of 2 or 36.  Input numbers may
+contain the characters 0-9 and A-Z. (Note: They must be capitals.
+Lower case letters are variable names.)  Single digit numbers always
+have the value of the digit regardless of the value of
+\fBibase\fR. (i.e. A = 10.)  For multi-digit numbers, \fBbc\fR changes
+all input digits greater or equal to ibase to the value of
+\fBibase\fR-1.  This makes the number \fBZZZ\fR always be the largest
+3 digit number of the input base.
 .PP
 Full expressions are similar to many other high level languages.
 Since there is only one kind of number, there are no rules for mixing
@@ -501,8 +502,8 @@ session.
 .nf
 .RS
 \f(CW
-define py (y) { print "--->", y, "<---", "\n"; }
-define void px (x) { print "--->", x, "<---", "\n"; }
+define py (y) { print "--->", y, "<---", "\en"; }
+define void px (x) { print "--->", x, "<---", "\en"; }
 py(1)
 --->1<---
 0

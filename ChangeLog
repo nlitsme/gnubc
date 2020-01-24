@@ -1,3 +1,49 @@
+Fri Apr  7 15:14:43 PDT 2017  Phil Nelson <philnelson@acm.org>
+	* NEWS: update for 1.07.1 and 1.4.1
+	* FAQ: add a couple new FAQs.
+	* doc/bc.1: change doucumentation of length() and correctly
+	  represent newline.
+	* doc/bc.texi: change doucumentation of length()
+
+
+Fri Apr  7 13:43:31 PDT 2017 Ken Pizzini <ken@gnu.org>
+	* bc/configure.ac: update dc version to 1.4.1;
+	  update dc copyright year list
+
+Fri Apr  7 13:14:41 PDT 2017 Phil Nelson <philnelson@acm.org>
+	* bc/Makefie.am: Do a different fix for parallel make issues.
+
+Fri Apr  7 00:11:49 PDT 2017 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c, dc/numeric.c: take more care to never pass
+	  a sign-extended char to the <ctype.h> isXXX() functions.
+	  Thanks to a NetBSD compiler warning for flagging this.
+
+Thu Apr  6 22:47:46 PDT 2017 Phil Nelson <philnelson@acm.org>
+	* bc/execute.c: More tweaks to fix for read() problems.
+	* bc/Makefile.am: Attempt to fix parallel make problems.
+
+Thu Apr  6 16:39:25 PDT 2017 Phil Nelson <philnelson@acm.org>
+	* bc/execute.c: Correct leading space problem caused by last fix.
+	* bc/configure.ac: version to 1.07.1
+
+Thu Apr  6 15:37:22 PDT 2017 Phil Nelson <philnelson@acm.org>
+	* bc/execute.c: Correct input_char for base 36 input.
+	* doc/bc.1: Update documentation for base 36 input.
+	* doc/bc.texi: Update documentation for base 36 input.
+
+Thu Apr  6 14:26:27 PDT 2017 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c: The 'Q' command "fix" of 2016-09-24 was incorrect.
+	  It fixed a reported bug, but introduced a regression for other
+	  existing (and correct) code.  Let's try this again (sigh).
+
+Thu Apr  6 13:11:15 PDT 2017 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c: bah, nevermind; just re-disovered commit of
+	  Oct 26, 2013 where the setvbuf() was rendered unnecessary
+	  by introduction of explicit fflush()-es.
+
+Thu Apr  6 13:11:15 PDT 2017 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c: re-instate setvbuf() call that got lost
+
 Mon Jan 16 14:30:00 PDT 2017 Phil Nelson <philnelson@acm.org>
 	* Updated copyright to 2017.
 
@@ -382,7 +428,7 @@ Fri May  9 21:52:46 2003 Ken Pizzini <ken@gnu.org>
 Thu Apr 17 16:25:35 2003 Phil Nelson  <phil@cs.wwu.edu>
 
 	* bc/{execute.c, proto.h, util.c}: char -> int in a few
-	  places dealing with isdigit and getchar(), updated copyright 
+	  places dealing with isdigit and getchar(), updated copyright
 
 	* bc/main.c: minor formatting changes, updated copyright
 
@@ -618,7 +664,7 @@ Tue Feb  8 08:47:05 2000  Phil Nelson  <phil@cs.wwu.edu>
 	  Finally got a resonable version of the program
 	  to test the crossover between non-recursive and
 	  recursive multiply algorithms.  Added to distribution
-	  and build process.  Does increase build time by 
+	  and build process.  Does increase build time by
 	  about 10 minutes.
 
 Wed Oct  6 13:28:59 1999  Phil Nelson  <phil@cs.wwu.edu>
@@ -894,7 +940,7 @@ Thu Apr 10 13:41:56 1997  Phil Nelson  <phil@fawn.cs.wwu.edu>
 
 Thu Apr 8 13:39:53 1997  Phil Nelson  <phil@cs.wwu.edu>
 
-	* bc/Makefile.am: Remove files that should not be distributed. 
+	* bc/Makefile.am: Remove files that should not be distributed.
 
 Mon Apr  7 17:14:28 1997  Phil Nelson  <phil@cs.wwu.edu>
 
@@ -1171,7 +1217,7 @@ Mon Mar 20 19:26:06 1995  Phil Nelson  <phil@cs.wwu.edu>
 
 Tue Feb 28 14:30:18 1995  Phil Nelson  <phil@cs.wwu.edu>
 
-	* Makefile.in: Change realclean to maintainer-clean.  Added warning. 
+	* Makefile.in: Change realclean to maintainer-clean.  Added warning.
 
 Mon Feb 27 17:08:24 1995  Phil Nelson  <phil@cs.wwu.edu>
 
@@ -1213,7 +1259,7 @@ Wed Nov  2 10:18:19 1994  Phil Nelson  (phil@cs.wwu.edu)
 
 	* version.h: updated version number and copyright date.
 
-	* Makefile.in, configure.in, Install: updated for use with 
+	* Makefile.in, configure.in, Install: updated for use with
 	  autoconf-2.0 and install-sh.  Changed target install a bit.
 
 	* install-sh: Included this file from the autoconf-2.0
@@ -1222,10 +1268,10 @@ Wed Nov  2 10:18:19 1994  Phil Nelson  (phil@cs.wwu.edu)
 	* README: updated to version 1.03.
 
 Mon Oct 31 10:26:28 1994  Phil Nelson  (phil@cs.wwu.edu)
-	
+
 	* Added Ken Pizzini's dc implementation that uses bc numeric
 	  routines.  The following files have been added:
-	  dc-Concerns   dc-array.c   dc-eval.c   dc-misc.c    dc-number.c 
+	  dc-Concerns   dc-array.c   dc-eval.c   dc-misc.c    dc-number.c
 	  dc-proto.h    dc-regdef.h  dc-stack.c  dc-string.c  dc-version.h
 	  dc.1          dc.h         dc.texinfo
 
@@ -1320,7 +1366,7 @@ Wed Sep 30 10:43:52 1992  Phil Nelson  (phil at cs.wwu.edu)
 Tue Sep 29 15:27:50 1992  Phil Nelson  (phil at cs.wwu.edu)
 
 	* storage.c (process_params): Changed processing of more arguments
-	  than in a function definition to just a return.  
+	  than in a function definition to just a return.
 
 	* Makefile: Made changes to make it more in conformance with the
 	  GNU coding standards.
@@ -1405,7 +1451,7 @@ Thu Jan 16 17:08:16 1992  Phil Nelson  (phil at cs.wwu.edu)
 Wed Jan  8 13:23:42 1992  Phil Nelson  (phil at cs.wwu.edu)
 
 	* Change all copyright notices to include 1992.
-	
+
 	* (load.c) Added termination to "load_code" to ignore code
 	  after an error has been found.
 

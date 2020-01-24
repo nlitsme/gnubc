@@ -1,7 +1,7 @@
 /* 
  * interface dc to the bc numeric routines
  *
- * Copyright (C) 1994, 1997, 1998, 2000, 2005, 2008, 2013
+ * Copyright (C) 1994, 1997, 1998, 2000, 2005, 2008, 2013, 2017
  * Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -533,10 +533,10 @@ strtol(const char *s, char **end, int base)
 	for (;; ++s) {
 		if (*s == '-')
 			sign = -sign;
-		else if (*s != '+' && !isspace(*s))
+		else if (*s != '+' && !isspace(*(const unsigned char *)s))
 			break;
 	}
-	while (isdigit(*s))
+	while (isdigit(*(const unsigned char *)s))
 		result = 10*result + (*s++ - '0');
 	*end = s;
 	return result * sign;
@@ -560,7 +560,7 @@ set_line_max_from_environment(void)
 		line_max = (int)proposed_line_len;
 
 		/* silently enforce sanity */
-		while (isspace(*endptr))
+		while (isspace(*(const unsigned char *)endptr))
 			++endptr;
 		if (*endptr || errno || line_max != proposed_line_len
 					|| line_max < 0 || line_max == 1)

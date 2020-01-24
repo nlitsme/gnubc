@@ -1,7 +1,7 @@
 /*
  * evaluate the dc language, from a FILE* or a string
  *
- * Copyright (C) 1994, 1997, 1998, 2000, 2003, 2005, 2006, 2008, 2010, 2012-2016
+ * Copyright (C) 1994, 1997, 1998, 2000, 2003, 2005, 2006, 2008, 2010, 2012-2017
  * Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -78,6 +78,9 @@ static dc_boolean unwind_noexit=DC_FALSE;
  */
 static int stdin_lookahead=EOF;
 
+/* forward reference */
+static int evalstr(dc_data *string);
+
 
 /* input_fil and input_str are passed as arguments to dc_getnum */
 
@@ -108,13 +111,13 @@ input_str DC_DECLVOID()
 {
 	if (*input_str_string == '\0')
 		return EOF;
-	return *input_str_string++;
+	return *(const unsigned char *)input_str_string++;
 }
 
 
 
 /* takes a string and evals it; frees the string when done */
-/* Wrapper around dc_evalstr to avoid duplicating the free call
+/* Wrapper around evalstr to avoid duplicating the free call
  * at all possible return points.
  */
 static int
@@ -123,7 +126,7 @@ dc_eval_and_free_str DC_DECLARG((string))
 {
 	dc_status status;
 
-	status = dc_evalstr(string);
+	status = evalstr(string);
 	if (string->dc_type == DC_STRING)
 		dc_free_str(&string->v.string);
 	return status;
@@ -515,8 +518,8 @@ between 2 and %d (inclusive)\n",
 
 
 /* takes a string and evals it */
-int
-dc_evalstr DC_DECLARG((string))
+static int
+evalstr DC_DECLARG((string))
 	dc_data *string DC_DECLEND
 {
 	const char *s;
@@ -591,10 +594,11 @@ dc_evalstr DC_DECLARG((string))
 		case DC_QUIT:
 			if (unwind_depth >= tail_depth){
 				unwind_depth -= tail_depth;
-				if (unwind_noexit != DC_TRUE)
-					return DC_QUIT;
+				return DC_QUIT;
 			}
-			return DC_OKAY;
+			/*adjust tail recursion accounting and continue*/
+			tail_depth -= unwind_depth;
+			break;
 
 		case DC_INT:
 			input_str_string = s - 1;
@@ -636,6 +640,23 @@ dc_evalstr DC_DECLARG((string))
 	}
 	return DC_OKAY;
 }
+
+/* wrapper around evalstr, to handle top-level QUIT requests correctly*/
+int
+dc_evalstr(dc_data *string)
+{
+   switch (evalstr(string)) {
+   case DC_OKAY:
+	   return DC_SUCCESS;
+   case DC_QUIT:
+	   if (unwind_noexit != DC_TRUE)
+		   return DC_FAIL;
+	   return DC_SUCCESS;
+   default:
+	   return DC_FAIL;
+   }
+}
+
 
 
 /* This is the main function of the whole DC program.
@@ -720,7 +741,7 @@ dc_evalfile DC_DECLARG((fp))
 				}else if (datum.dc_type == DC_STRING){
 					if (dc_eval_and_free_str(&datum) == DC_QUIT){
 						if (unwind_noexit != DC_TRUE)
-							goto reset_and_exit_success;
+							goto reset_and_exit_quit;
 						fprintf(stderr, "%s: Q command argument exceeded \
 string execution depth\n", progname);
 					}
@@ -731,7 +752,7 @@ string execution depth\n", progname);
 			break;
 		case DC_QUIT:
 			if (unwind_noexit != DC_TRUE)
-				goto reset_and_exit_success;
+				goto reset_and_exit_quit;
 			fprintf(stderr,
 					"%s: Q command argument exceeded string execution depth\n",
 					progname);
@@ -787,12 +808,13 @@ string execution depth\n", progname);
 		signal(SIGINT, sigint_default);
 	}
 	if (!ferror(fp))
-		return DC_SUCCESS;
+		goto reset_and_exit_success;
 
 error_fail:
 	fprintf(stderr, "%s: ", progname);
 	perror("error reading input");
 	return DC_FAIL;
+reset_and_exit_quit:
 reset_and_exit_fail:
 	signal(SIGINT, sigint_default);
 	return DC_FAIL;

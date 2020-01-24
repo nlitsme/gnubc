@@ -285,9 +285,7 @@ LIBL = @LEXLIB@
 LDADD = $(LIBBC) $(LIBL) @READLINELIB@
 AM_YFLAGS = -d
 AM_CFLAGS = @CFLAGS@
-fbcOBJ = main.o bc.o scan.o execute.o global.o load.o storage.o util.o \
-         warranty.o
-
+fbcOBJ = main.o bc.o scan.o execute.o load.o storage.o util.o warranty.o
 sbcOBJ = main.o sbc.o scan.o execute.o global.o load.o storage.o util.o \
          warranty.o
 
@@ -621,19 +619,18 @@ uninstall-am: uninstall-binPROGRAMS
 	uninstall-binPROGRAMS
 
 
-$(PROGRAMS): $(LIBBC)
+$(PROGRAMS): libmath.h $(LIBBC)
 
 scan.o: bc.h
 global.o: libmath.h
 
-libmath.h: libmath.b
+libmath.h: libmath.b $(fbcOBJ) $(LIBBC)
 	echo '{0}' > libmath.h
-	$(MAKE) fbc
+	$(MAKE) global.o
+	$(LINK) -o fbc $(fbcOBJ) global.o $(LIBBC) $(LIBL) $(READLINELIB) $(LIBS)
 	./fbc -c $(srcdir)/libmath.b </dev/null >libmath.h
 	$(srcdir)/fix-libmath_h
 	rm -f ./fbc ./global.o
-fbc: $(fbcOBJ) $(LIBBC)
-	$(LINK) $(fbcOBJ) $(LIBBC) $(LIBL) $(READLINELIB) $(LIBS)
 sbc.o: sbc.c
 sbc: $(sbcOBJ) $(LIBBC)
 	$(LINK) $(sbcOBJ) $(LIBBC) $(LIBL) $(READLINELIB) $(LIBS)

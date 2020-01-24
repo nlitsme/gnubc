@@ -5,7 +5,7 @@ START-INFO-DIR-ENTRY
 * dc: (dc).                   Arbitrary precision RPN "Desktop Calculator".
 END-INFO-DIR-ENTRY
 
-   This manual documents version 1.4 of GNU `dc', an arbitrary
+   This manual documents version 1.4.1 of GNU `dc', an arbitrary
 precision calculator.
 
    Copyright (C) 1984, 1994, 1997, 1998, 2000, 2005, 2006, 2008, 2013,
@@ -24,7 +24,7 @@ File: dc.info,  Node: Top,  Next: Introduction,  Up: (dir)
 GNU dc
 ******
 
-This manual documents version 1.4 of GNU `dc', an arbitrary precision
+This manual documents version 1.4.1 of GNU `dc', an arbitrary precision
 calculator.
 
    Copyright (C) 1984, 1994, 1997, 1998, 2000, 2005, 2006, 2008, 2013,
@@ -481,18 +481,18 @@ Email bug reports to <bug-dc@gnu.org>.
 
 
 Tag Table:
-Node: Top793
-Node: Introduction1961
-Node: Invocation3310
-Node: Printing Commands4161
-Node: Arithmetic6206
-Node: Stack Control9182
-Node: Registers10173
-Ref: Registers-Footnote-111238
-Node: Parameters11390
-Node: Strings12655
-Node: Status Inquiry15812
-Node: Miscellaneous16880
-Node: Reporting bugs17853
+Node: Top795
+Node: Introduction1965
+Node: Invocation3314
+Node: Printing Commands4165
+Node: Arithmetic6210
+Node: Stack Control9186
+Node: Registers10177
+Ref: Registers-Footnote-111242
+Node: Parameters11394
+Node: Strings12659
+Node: Status Inquiry15816
+Node: Miscellaneous16884
+Node: Reporting bugs17857
 
 End Tag Table

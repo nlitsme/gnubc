@@ -15,8 +15,8 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 > dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-m4_define([bc_version], 1.07)
-m4_define([dc_version], 1.4)
+m4_define([bc_version], 1.07.1)
+m4_define([dc_version], 1.4.1)
 
 AC_INIT([bc],[bc_version])
 AC_CONFIG_SRCDIR(doc/bc.1)
@@ -31,7 +31,7 @@ AC_DEFINE([BC_COPYRIGHT],
 	  [Define the bc copyright line.])
 
 AC_DEFINE([DC_COPYRIGHT], 
-          ["Copyright 1994, 1997, 1998, 2000, 2001, 2004, 2005, 2006, 2016 Free Software Foundation, Inc."],
+          ["Copyright 1994, 1997, 1998, 2000, 2001, 2003-2006, 2008, 2010, 2012-2017 Free Software Foundation, Inc."],
 	  [Define the dc copyright line.])
 
 AC_PROG_CC

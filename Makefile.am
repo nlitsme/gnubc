@@ -3,7 +3,8 @@
 SUBDIRS = lib bc dc doc
 
 MAINTAINERCLEANFILES =  aclocal.m4 config.h.in configure Makefile.in \
-			stamp-h $(distdir).tar.gz h/number.h depcomp missing
+			stamp-h $(distdir).tar.gz h/number.h depcomp missing \
+			bc/libmath.h
 
 dist-hook:
 	mkdir $(distdir)/h $(distdir)/Examples $(distdir)/Test
@@ -13,6 +14,7 @@ dist-hook:
 	cp -p $(srcdir)/Test/signum $(srcdir)/Test/timetest $(distdir)/Test
 	cp -p $(srcdir)/lib/testmul.c $(distdir)/lib
 	cp -p $(srcdir)/FAQ $(distdir)
+	rm -f $(distdir)/bc/libmath.h
 
 timetest:
 	(cd lib; $(MAKE) specialnumber)

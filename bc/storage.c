@@ -1,10 +1,10 @@
 /*  This file is part of GNU bc.
 
-    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
+    Copyright (C) 1991-1994, 1997, 2006, 2008, 2012-2017 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License , or
+    the Free Software Foundation; either version 3 of the License , or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -13,10 +13,8 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to:
-      The Free Software Foundation, Inc.
-      Foundation, Inc.  51 Franklin Street, Fifth Floor,
-      Boston, MA 02110-1301  USA
+    along with this program; see the file COPYING.  If not, see
+    <http://www.gnu.org/licenses>.
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -32,17 +30,21 @@
 #include "bcdefs.h"
 #include "proto.h"
 
+/* Local prototypes */
+static bc_array_node *copy_tree (bc_array_node *ary_node, int depth);
+static bc_array *copy_array (bc_array *ary);
+
 
 /* Initialize the storage at the beginning of the run. */
 
 void
-init_storage ()
+init_storage (void)
 {
 
   /* Functions: we start with none and ask for more. */
   f_count = 0;
   more_functions ();
-  f_names[0] = (char *)"(main)";
+  f_names[0] = strdup("(main)");
 
   /* Variables. */
   v_count = 0;
@@ -69,7 +71,7 @@ init_storage ()
    arrays that are needed.  This adds another 32 of the requested object. */
 
 void
-more_functions (VOID)
+more_functions (void)
 {
   int old_count;
   int indx;
@@ -84,8 +86,8 @@ more_functions (VOID)
 
   /* Add a fixed amount and allocate new space. */
   f_count += STORE_INCR;
-  functions = (bc_function *) bc_malloc (f_count*sizeof (bc_function));
-  f_names = (char **) bc_malloc (f_count*sizeof (char *));
+  functions = bc_malloc (f_count*sizeof (bc_function));
+  f_names = bc_malloc (f_count*sizeof (char *));
 
   /* Copy old ones. */
   for (indx = 0; indx < old_count; indx++)
@@ -99,7 +101,8 @@ more_functions (VOID)
     {
       f = &functions[indx];
       f->f_defined = FALSE;
-      f->f_body = (char *) bc_malloc (BC_START_SIZE);
+      f->f_void = FALSE;
+      f->f_body = bc_malloc (BC_START_SIZE);
       f->f_body_size = BC_START_SIZE;
       f->f_code_size = 0;
       f->f_label = NULL;
@@ -116,7 +119,7 @@ more_functions (VOID)
 }
 
 void
-more_variables ()
+more_variables (void)
 {
   int indx;
   int old_count;
@@ -130,8 +133,8 @@ more_variables ()
 
   /* Increment by a fixed amount and allocate. */
   v_count += STORE_INCR;
-  variables = (bc_var **) bc_malloc (v_count*sizeof(bc_var *));
-  v_names = (char **) bc_malloc (v_count*sizeof(char *));
+  variables = bc_malloc (v_count*sizeof(bc_var *));
+  v_names = bc_malloc (v_count*sizeof(char *));
 
   /* Copy the old variables. */
   for (indx = 3; indx < old_count; indx++)
@@ -153,7 +156,7 @@ more_variables ()
 }
 
 void
-more_arrays ()
+more_arrays (void)
 {
   int indx;
   int old_count;
@@ -167,8 +170,8 @@ more_arrays ()
 
   /* Increment by a fixed amount and allocate. */
   a_count += STORE_INCR;
-  arrays = (bc_var_array **) bc_malloc (a_count*sizeof(bc_var_array *));
-  a_names = (char **) bc_malloc (a_count*sizeof(char *));
+  arrays = bc_malloc (a_count*sizeof(bc_var_array *));
+  a_names = bc_malloc (a_count*sizeof(char *));
 
   /* Copy the old arrays. */
   for (indx = 1; indx < old_count; indx++)
@@ -179,7 +182,7 @@ more_arrays ()
 
 
   /* Initialize the new elements. */
-  for (; indx < v_count; indx++)
+  for (; indx < a_count; indx++)
     arrays[indx] = NULL;
 
   /* Free the old elements. */
@@ -194,8 +197,7 @@ more_arrays ()
 /* clear_func clears out function FUNC and makes it ready to redefine. */
 
 void
-clear_func (func)
-     int func;
+clear_func (int func)
 {
   bc_function *f;
   bc_label_group *lg;
@@ -227,7 +229,7 @@ clear_func (func)
 /*  Pop the function execution stack and return the top. */
 
 int
-fpop()
+fpop(void)
 {
   fstack_rec *temp;
   int retval;
@@ -251,12 +253,11 @@ fpop()
 /* Push VAL on to the function stack. */
 
 void
-fpush (val)
-     int val;
+fpush (int val)
 {
   fstack_rec *temp;
   
-  temp = (fstack_rec *) bc_malloc (sizeof (fstack_rec));
+  temp = bc_malloc (sizeof (fstack_rec));
   temp->s_next = fn_stack;
   temp->s_val = val;
   fn_stack = temp;
@@ -266,7 +267,7 @@ fpush (val)
 /* Pop and discard the top element of the regular execution stack. */
 
 void
-pop ()
+pop (void)
 {
   estack_rec *temp;
   
@@ -283,12 +284,11 @@ pop ()
 /* Push a copy of NUM on to the regular execution stack. */
 
 void
-push_copy (num)
-     bc_num num;
+push_copy (bc_num num)
 {
   estack_rec *temp;
 
-  temp = (estack_rec *) bc_malloc (sizeof (estack_rec));
+  temp = bc_malloc (sizeof (estack_rec));
   temp->s_num = bc_copy_num (num);
   temp->s_next = ex_stack;
   ex_stack = temp;
@@ -298,12 +298,11 @@ push_copy (num)
 /* Push NUM on to the regular execution stack.  Do NOT push a copy. */
 
 void
-push_num (num)
-     bc_num num;
+push_num (bc_num num)
 {
   estack_rec *temp;
 
-  temp = (estack_rec *) bc_malloc (sizeof (estack_rec));
+  temp = bc_malloc (sizeof (estack_rec));
   temp->s_num = num;
   temp->s_next = ex_stack;
   ex_stack = temp;
@@ -315,8 +314,7 @@ push_num (num)
    return FALSE. */
 
 char
-check_stack (depth)
-     int depth;
+check_stack (int depth)
 {
   estack_rec *temp;
 
@@ -342,15 +340,14 @@ check_stack (depth)
    exist, one is created. */
 
 bc_var *
-get_var (var_name)
-     int var_name;
+get_var (int var_name)
 {
   bc_var *var_ptr;
 
   var_ptr = variables[var_name];
   if (var_ptr == NULL)
     {
-      var_ptr = variables[var_name] = (bc_var *) bc_malloc (sizeof (bc_var));
+      var_ptr = variables[var_name] = bc_malloc (sizeof (bc_var));
       bc_init_num (&var_ptr->v_value);
     }
   return var_ptr;
@@ -364,22 +361,20 @@ get_var (var_name)
    the index into the bc array. */
 
 bc_num *
-get_array_num (var_index, idx)
-     int var_index;
-     long  idx;
+get_array_num (int var_index, unsigned long idx)
 {
   bc_var_array *ary_ptr;
   bc_array *a_var;
   bc_array_node *temp;
-  int log, ix, ix1;
+  int log;
+  unsigned int ix, ix1;
   int sub [NODE_DEPTH];
 
   /* Get the array entry. */
   ary_ptr = arrays[var_index];
   if (ary_ptr == NULL)
     {
-      ary_ptr = arrays[var_index] =
-	(bc_var_array *) bc_malloc (sizeof (bc_var_array));
+      ary_ptr = arrays[var_index] = bc_malloc (sizeof (bc_var_array));
       ary_ptr->a_value = NULL;
       ary_ptr->a_next = NULL;
       ary_ptr->a_param = FALSE;
@@ -387,7 +382,7 @@ get_array_num (var_index, idx)
 
   a_var = ary_ptr->a_value;
   if (a_var == NULL) {
-    a_var = ary_ptr->a_value = (bc_array *) bc_malloc (sizeof (bc_array));
+    a_var = ary_ptr->a_value = bc_malloc (sizeof (bc_array));
     a_var->a_tree = NULL;
     a_var->a_depth = 0;
   }
@@ -406,7 +401,7 @@ get_array_num (var_index, idx)
   /* Build any tree that is necessary. */
   while (log > a_var->a_depth)
     {
-      temp = (bc_array_node *) bc_malloc (sizeof(bc_array_node));
+      temp = bc_malloc (sizeof(bc_array_node));
       if (a_var->a_depth != 0)
 	{
 	  temp->n_items.n_down[0] = a_var->a_tree;
@@ -429,8 +424,7 @@ get_array_num (var_index, idx)
       ix1 = sub[log];
       if (temp->n_items.n_down[ix1] == NULL)
 	{
-	  temp->n_items.n_down[ix1] =
-	    (bc_array_node *) bc_malloc (sizeof(bc_array_node));
+	  temp->n_items.n_down[ix1] = bc_malloc (sizeof(bc_array_node));
 	  temp = temp->n_items.n_down[ix1];
 	  if (log > 1)
 	    for (ix=0; ix < NODE_SIZE; ix++)
@@ -452,8 +446,7 @@ get_array_num (var_index, idx)
    This includes the special variables ibase, obase, and scale. */
 
 void
-store_var (var_name)
-     int var_name;
+store_var (int var_name)
 {
   bc_var *var_ptr;
   long temp;
@@ -514,8 +507,22 @@ store_var (var_name)
 	  else
 	    if (temp > 16 || toobig)
 	      {
-		i_base = 16;
-		rt_warn ("ibase too large, set to 16");
+	        if (std_only)
+                  {
+		    i_base = 16;  
+		    rt_warn ("ibase too large, set to 16");
+                  } 
+                else if (temp > 36 || toobig) 
+                  {
+		    i_base = 36;
+		    rt_warn ("ibase too large, set to 36");
+                  }
+                else
+                  { 
+                     if (temp >= 16 && warn_not_std)
+                       rt_warn ("ibase larger than 16 is non-standard");
+		     i_base = temp;
+                  }
 	      }
 	    else
 	      i_base = (int) temp;
@@ -576,8 +583,7 @@ store_var (var_name)
    of stack for the index into the array. */
 
 void
-store_array (var_name)
-     int var_name;
+store_array (int var_name)
 {
   bc_num *num_ptr;
   long idx;
@@ -607,8 +613,7 @@ store_array (var_name)
     the special variables ibase, obase and scale.  */
 
 void
-load_var (var_name)
-     int var_name;
+load_var (int var_name)
 {
   bc_var *var_ptr;
 
@@ -656,8 +661,7 @@ load_var (var_name)
     the special variables ibase, obase and scale.  */
 
 void
-load_array (var_name)
-     int var_name;
+load_array (int var_name)
 {
   bc_num *num_ptr;
   long   idx;
@@ -683,8 +687,7 @@ load_array (var_name)
    ibase, obase, and scale. */
 
 void
-decr_var (var_name)
-     int var_name;
+decr_var (int var_name)
 {
   bc_var *var_ptr;
 
@@ -723,6 +726,7 @@ decr_var (var_name)
 	  rt_warn ("history is negative, set to unlimited");
 	  UNLIMIT_HISTORY;
 	}
+      break;
 #endif
 
     default: /* It is a simple variable. */
@@ -737,8 +741,7 @@ decr_var (var_name)
    the execution stack is the index and it is popped off the stack. */
 
 void
-decr_array (var_name)
-     int var_name;
+decr_array (int var_name)
 {
   bc_num *num_ptr;
   long   idx;
@@ -765,8 +768,7 @@ decr_array (var_name)
    ibase, obase, and scale. */
 
 void
-incr_var (var_name)
-     int var_name;
+incr_var (int var_name)
 {
   bc_var *var_ptr;
 
@@ -805,6 +807,7 @@ incr_var (var_name)
 	  rt_warn ("history set to unlimited");
 	  UNLIMIT_HISTORY;
 	}
+      break;	
 #endif
 
     default:  /* It is a simple variable. */
@@ -820,8 +823,7 @@ incr_var (var_name)
    execution stack is the index and is popped off the stack. */
 
 void
-incr_array (var_name)
-     int var_name;
+incr_array (int var_name)
 {
   bc_num *num_ptr;
   long   idx;
@@ -848,8 +850,7 @@ incr_array (var_name)
 /* NAME is an auto variable that needs to be pushed on its stack. */
 
 void
-auto_var (name)
-     int name;
+auto_var (int name)
 {
   bc_var *v_temp;
   bc_var_array *a_temp;
@@ -859,7 +860,7 @@ auto_var (name)
     {
       /* A simple variable. */
       ix = name;
-      v_temp = (bc_var *) bc_malloc (sizeof (bc_var));
+      v_temp = bc_malloc (sizeof (bc_var));
       v_temp->v_next = variables[ix];
       bc_init_num (&v_temp->v_value);
       variables[ix] = v_temp;
@@ -868,7 +869,7 @@ auto_var (name)
     {
       /* An array variable. */
       ix = -name;
-      a_temp = (bc_var_array *) bc_malloc (sizeof (bc_var_array));
+      a_temp = bc_malloc (sizeof (bc_var_array));
       a_temp->a_next = arrays[ix];
       a_temp->a_value = NULL;
       a_temp->a_param = FALSE;
@@ -881,9 +882,7 @@ auto_var (name)
    This is used when popping an array variable off its auto stack.  */
 
 void
-free_a_tree ( root, depth )
-     bc_array_node *root;
-     int depth;
+free_a_tree (bc_array_node *root, int depth)
 {
   int ix;
 
@@ -904,8 +903,7 @@ free_a_tree ( root, depth )
    popped off their auto stacks. */
 
 void
-pop_vars (list)
-     arg_list *list;
+pop_vars (arg_list *list)
 {
   bc_var *v_temp;
   bc_var_array *a_temp;
@@ -947,12 +945,10 @@ pop_vars (list)
 }
 
 /* COPY_NODE: Copies an array node for a call by value parameter. */
-bc_array_node *
-copy_tree (ary_node, depth)
-     bc_array_node *ary_node;
-     int depth;
+static bc_array_node *
+copy_tree (bc_array_node *ary_node, int depth)
 {
-  bc_array_node *res = (bc_array_node *) bc_malloc (sizeof(bc_array_node));
+  bc_array_node *res = bc_malloc (sizeof(bc_array_node));
   int i;
 
   if (depth > 1)
@@ -974,11 +970,10 @@ copy_tree (ary_node, depth)
 /* COPY_ARRAY: Copies an array for a call by value array parameter. 
    ARY is the pointer to the bc_array structure. */
 
-bc_array *
-copy_array (ary)
-     bc_array *ary;
+static bc_array *
+copy_array (bc_array *ary)
 {
-  bc_array *res = (bc_array *) bc_malloc (sizeof(bc_array));
+  bc_array *res = bc_malloc (sizeof(bc_array));
   res->a_depth = ary->a_depth;
   res->a_tree = copy_tree (ary->a_tree, ary->a_depth);
   return (res);
@@ -991,16 +986,13 @@ copy_array (ary)
    variable. */
 
 void
-process_params (progctr, func)
-     program_counter *progctr;
-     int func;
+process_params (program_counter *progctr, int func)
 {
   char ch;
   arg_list *params;
   int ix, ix1;
   bc_var *v_temp;
   bc_var_array *a_src, *a_dest;
-  bc_num *n_temp;
   
   /* Get the parameter names from the function. */
   params = functions[func].f_params;
@@ -1013,7 +1005,7 @@ process_params (progctr, func)
 	    {
 	      /* A simple variable. */
 	      ix = params->av_name;
-	      v_temp = (bc_var *) bc_malloc (sizeof(bc_var));
+	      v_temp = bc_malloc (sizeof(bc_var));
 	      v_temp->v_next = variables[ix];
 	      v_temp->v_value = ex_stack->s_num;
 	      bc_init_num (&ex_stack->s_num);
@@ -1026,7 +1018,7 @@ process_params (progctr, func)
 	
 		/* Compute source index and make sure some structure exists. */
 		ix = (int) bc_num2long (ex_stack->s_num);
-		n_temp = get_array_num (ix, 0);    
+		(void) get_array_num (ix, 0);    
 	
 		/* Push a new array and Compute Destination index */
 		auto_var (params->av_name);  

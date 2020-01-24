@@ -1,11 +1,12 @@
 /* 
  * implement string functions for dc
  *
- * Copyright (C) 1994, 1997, 1998, 2006 Free Software Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2006, 2008, 2013
+ * Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
+ * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,12 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, you can either send email to this
- * program's author (see below) or write to:
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    The Free Software Foundation, Inc.
- *    51 Franklin Street, Fifth Floor
- *    Boston, MA 02110-1301  USA
  */
 
 /* This should be the only module that knows the internals of type dc_string */
@@ -89,18 +86,14 @@ dc_free_str DC_DECLARG((value))
 }
 
 /* Output a dc_str value.
- * Add a trailing newline if "newline" is set.
  * Free the value after use if discard_flag is set.
  */
 void
-dc_out_str DC_DECLARG((value, newline, discard_flag))
+dc_out_str DC_DECLARG((value, discard_flag))
 	dc_str value DC_DECLSEP
-	dc_newline newline DC_DECLSEP
 	dc_discard discard_flag DC_DECLEND
 {
 	fwrite(value->s_ptr, value->s_len, sizeof *value->s_ptr, stdout);
-	if (newline == DC_WITHNL)
-		putchar('\n');
 	if (discard_flag == DC_TOSS)
 		dc_free_str(&value);
 }

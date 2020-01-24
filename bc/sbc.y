@@ -146,7 +146,7 @@ statement 		: Warranty
 				}
 			    }
 			| Quit
-			    { exit (0); }
+			    { bc_exit (0); }
 			| Return
 			    { generate ("0R"); }
 			| Return '(' return_expression ')'

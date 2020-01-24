@@ -1,10 +1,10 @@
 /*  This file is part of GNU bc.
 
-    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
+    Copyright (C) 1991-1994, 1997, 2006, 2008, 2012-2017 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License , or
+    the Free Software Foundation; either version 3 of the License , or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -13,10 +13,8 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to:
-      The Free Software Foundation, Inc.
-      Foundation, Inc.  51 Franklin Street, Fifth Floor,
-      Boston, MA 02110-1301  USA
+    along with this program; see the file COPYING.  If not, see
+    <http://www.gnu.org/licenses>.
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -29,7 +27,7 @@
 
 /* global.h:  The global variables for bc.  */
 
-/* The current break level's lable. */
+/* The current break level's label. */
 EXTERN int break_label;
 
 /* The current if statement's else label or label after else. */
@@ -153,3 +151,6 @@ extern int optind;
 
 /* Access to the yy input file.  Defined in scan.c. */
 extern FILE *yyin;
+
+/* Access to libmath */
+extern CONST char *libmath[];

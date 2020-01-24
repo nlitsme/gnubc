@@ -1,10 +1,10 @@
 /*  This file is part of GNU bc.
 
-    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
+    Copyright (C) 1991-1994, 1997, 2006, 2008, 2012-2017 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License , or
+    the Free Software Foundation; either version 3 of the License , or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -13,10 +13,8 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to:
-      The Free Software Foundation, Inc.
-      Foundation, Inc.  51 Franklin Street, Fifth Floor,
-      Boston, MA 02110-1301  USA
+    along with this program; see the file COPYING.  If not, see
+    <http://www.gnu.org/licenses>.
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -80,7 +78,7 @@
 
 typedef struct bc_label_group
     {
-      long l_adrs [ BC_LABEL_GROUP ];
+      unsigned long l_adrs [ BC_LABEL_GROUP ];
       struct bc_label_group *l_next;
     } bc_label_group;
 
@@ -102,8 +100,8 @@ typedef struct
       char f_defined;   /* Is this function defined yet. */
       char f_void;	/* Is this function a void function. */
       char *f_body;
-      int  f_body_size;  /* Size of body.  Power of 2. */
-      int  f_code_size;
+      size_t f_body_size;  /* Size of body.  Power of 2. */
+      size_t f_code_size;
       bc_label_group *f_label;
       arg_list *f_params;
       arg_list *f_autos;
@@ -111,8 +109,8 @@ typedef struct
 
 /* Code addresses. */
 typedef struct {
-      int pc_func;
-      int pc_addr;
+      unsigned int pc_func;
+      unsigned int pc_addr;
     } program_counter;
 
 

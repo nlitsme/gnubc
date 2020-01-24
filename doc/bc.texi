@@ -420,7 +420,7 @@ functions.  They all appear as
 user-defined functions.  The standard functions are:
 
 @table @code
-@item length ( expression )
+@item length ( @var{expression} )
 The value of the length function is the number of significant digits in the
 expression.
 
@@ -434,11 +434,11 @@ be input from the user.  The value of the @code{read} function is the
 number read from the standard input using the current value of the
 variable @var{ibase} for the conversion base.
 
-@item scale ( expression )
+@item scale ( @var{expression} )
 The value of the @code{scale} function is the number of digits after the
 decimal point in the expression.
 
-@item sqrt ( expression )
+@item sqrt ( @var{expression} )
 The value of the @code{sqrt} function is the square root of the
 expression.  If the expression is negative, a run time error is
 generated.
@@ -465,8 +465,8 @@ series of statements separated by semicolons and newlines.  The
 following is a list of @command{bc} statements and what they do: (Things
 enclosed in brackets ( [ ] ) are optional parts of the statement.)
 
-@table @var
-@item expression
+@table @code
+@item @var{expression}
 This statement does one of two things.  If the expression starts with
 "<variable> <assignment> ...", it is considered to be an assignment
 statement.  If the expression is not an assignment statement, the
@@ -496,13 +496,13 @@ until the next number is printed or another value is assigned to
 (.) which is not part of a number as a short hand notation for for
 @var{last}.)
 
-@item string
+@item @var{string}
 The string is printed to the output.  Strings start with a double quote
 character and contain all characters until the next double quote character.
 All characters are taken literally, including any newline.  No newline
 character is printed after the string.
 
-@item @code{print} @var{list}
+@item print @var{list}
 The @code{print} statement (an extension) provides another method of
 output.  The @var{list} is a list of strings and expressions separated by
 commas.  Each string or expression is printed in the order of the list.
@@ -515,24 +515,24 @@ bell), "b" (backspace), "f" (form feed), "n" (newline), "r" (carriage
 return), "q" (double quote), "t" (tab), and "\e" (backslash).  Any other
 character following the backslash will be ignored.
 
-@item @{ statement_list @}
+@item @{ @var{statement_list} @}
 This is the compound statement.  It allows multiple statements to be
 grouped together for execution.
 
-@item @code{if} ( expression ) statement1 [@code{else} statement2]
+@item if ( @var{expression} ) @var{statement1} [else @var{statement2}]
 The if statement evaluates the expression and executes statement1 or
 statement2 depending on the value of the expression.  If the expression
 is non-zero, statement1 is executed.  If statement2 is present and
 the value of the expression is 0, then statement2 is executed.  (The
 @code{else} clause is an extension.)
 
-@item @code{while} ( expression ) statement
+@item while ( @var{expression} ) @var{statement}
 The while statement will execute the statement while the expression
 is non-zero.  It evaluates the expression before each execution of
 the statement.   Termination of the loop is caused by a zero
 expression value or the execution of a @code{break} statement.
 
-@item @code{for} ( [expression1] ; [expression2] ; [expression3] ) statement
+@item for ( [@var{expression1}] ; [@var{expression2}] ; [@var{expression3}] ) @var{statement}
 The @code{for} statement controls repeated execution of the statement.
 @var{Expression1} is evaluated before the loop.  @var{Expression2} is
 evaluated before each execution of the statement.  If it is non-zero,
@@ -554,24 +554,24 @@ while (expression2) @{
 @}
 @end example
 
-@item @code{break}
+@item break
 This statement causes a forced exit of the most recent enclosing @code{while}
 statement or @code{for} statement.
 
-@item @code{continue}
+@item continue
 The @code{continue} statement (an extension)  causes the most recent enclosing
 @code{for} statement to start the next iteration.
 
-@item @code{halt}
+@item halt
 The @code{halt} statement (an extension) is an executed statement that
 causes the @command{bc} processor to quit only when it is executed.  For
 example, "if (0 == 1) halt" will not cause @command{bc} to terminate
 because the @code{halt} is not executed.
 
-@item @code{return}
+@item return
 Return the value 0 from a function.  (@xref{Functions}.)
 
-@item @code{return} ( expression )
+@item return ( @var{expression} )
 Return the value of the expression from a function.  (@xref{Functions}.)
 As an extension, the parenthesis are not required.
 @end table
@@ -731,7 +731,7 @@ The natural logarithm of @var{x}.
 @item e (@var{x})
 The exponential function of raising @var{e} to the value @var{x}.
 
-@item j (@var{n,x})
+@item j (@var{n}, @var{x})
 The Bessel function of integer order @var{n} of @var{x}.
 @end table
 
@@ -866,7 +866,7 @@ A major source of differences is extensions, where a feature is extended
 to add more functionality and additions, where new features are added.
 The following is the list of differences and extensions.
 
-@table @var
+@table @asis
 
 @item LANG environment
 This version does not conform to the POSIX standard in the processing
@@ -893,23 +893,23 @@ the @code{while} statement, and the second expression of the @code{for}
 statement.  Also, only one relational operation is allowed in each of
 those statements.
 
-@item if statement, else clause
+@item @code{if} statement, @code{else} clause
 POSIX @command{bc} does not have an @code{else} clause.
 
-@item for statement
+@item @code{for} statement
 POSIX @command{bc} requires all expressions to be present in the
 @code{for} statement.
 
-@item &&, ||, !
+@item @code{&&,} @code{||}, @code{!}
 POSIX @command{bc} does not have the logical operators.
 
-@item read function
+@item @code{read} function
 POSIX @command{bc} does not have a @code{read} function.
 
-@item print statement
+@item @code{print} statement
 POSIX @command{bc} does not have a @code{print} statement.
 
-@item continue statement
+@item @code{continue} statement
 POSIX @command{bc} does not have a continue statement.
 
 @item array parameters
@@ -923,7 +923,7 @@ of @command{bc} have only call by value array parameters.
 POSIX @command{bc} requires the opening brace on the same line as the 
 @code{define} key word and the @code{auto} statement on the next line.
 
-@item =+, =-, =*, =/, =%, =^
+@item @code{=+}, @code{=-}, @code{=*}, @code{=/}, @code{=%}, @code{=^}
 POSIX @command{bc} does not require these "old style" assignment
 operators to be defined.  This version may allow these "old style"
 assignments.  Use the @code{limits} statement to see if the installed

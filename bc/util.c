@@ -1,10 +1,10 @@
 /*  This file is part of GNU bc.
 
-    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
+    Copyright (C) 1991-1994, 1997, 2006, 2008, 2012-2017 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License , or
+    the Free Software Foundation; either version 3 of the License , or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -13,10 +13,8 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to:
-      The Free Software Foundation, Inc.
-      Foundation, Inc.  51 Franklin Street, Fifth Floor,
-      Boston, MA 02110-1301  USA
+    along with this program; see the file COPYING.  If not, see
+    <http://www.gnu.org/licenses>.
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -42,12 +40,11 @@
    memory. */
 
 char *
-strcopyof (str)
-     const char *str;
+strcopyof (const char *str)
 {
   char *temp;
 
-  temp = (char *) bc_malloc (strlen (str)+1);
+  temp = bc_malloc (strlen (str)+1);
   return (strcpy (temp,str));
 }
 
@@ -55,13 +52,10 @@ strcopyof (str)
 /* nextarg adds another value to the list of arguments. */
 
 arg_list *
-nextarg (args, val, is_var)
-     arg_list *args;
-     int val;
-     int is_var;
+nextarg (arg_list *args, int val, int is_var)
 { arg_list *temp;
 
-  temp = (arg_list *) bc_malloc (sizeof (arg_list));
+  temp = bc_malloc (sizeof (arg_list));
   temp->av_name = val;
   temp->arg_is_var = is_var;
   temp->next = args;
@@ -83,22 +77,20 @@ static char *arglist1 = NULL, *arglist2 = NULL;
    characters needed.  1 char is the minimum needed. 
  */
 
-_PROTOTYPE (static char *make_arg_str, (arg_list *args, int len));
+static char *make_arg_str (arg_list *args, int len);
 
 static char *
-make_arg_str (args, len)
-      arg_list *args;
-      int len;
+make_arg_str (arg_list *args, int len)
 {
   char *temp;
-  char sval[20];
+  char sval[30];
 
   /* Recursive call. */
   if (args != NULL)
     temp = make_arg_str (args->next, len+12);
   else
     {
-      temp = (char *) bc_malloc (len);
+      temp = bc_malloc (len);
       *temp = 0;
       return temp;
     }
@@ -106,21 +98,20 @@ make_arg_str (args, len)
   /* Add the current number to the end of the string. */
   if (args->arg_is_var)
     if (len != 1) 
-      sprintf (sval, "*%d,", args->av_name);
+      snprintf (sval, sizeof(sval), "*%d,", args->av_name);
     else
-      sprintf (sval, "*%d", args->av_name);
+      snprintf (sval, sizeof(sval), "*%d", args->av_name);
   else
     if (len != 1) 
-      sprintf (sval, "%d,", args->av_name);
+      snprintf (sval, sizeof(sval), "%d,", args->av_name);
     else
-      sprintf (sval, "%d", args->av_name);
+      snprintf (sval, sizeof(sval), "%d", args->av_name);
   temp = strcat (temp, sval);
   return (temp);
 }
 
 char *
-arg_str (args)
-     arg_list *args;
+arg_str (arg_list *args)
 {
   if (arglist2 != NULL) 
     free (arglist2);
@@ -130,8 +121,7 @@ arg_str (args)
 }
 
 char *
-call_str (args)
-     arg_list *args;
+call_str (arg_list *args)
 {
   arg_list *temp;
   int       arg_count;
@@ -144,7 +134,7 @@ call_str (args)
   /* Count the number of args and add the 0's and 1's. */
   for (temp = args, arg_count = 0; temp != NULL; temp = temp->next)
     arg_count++;
-  arglist1 = (char *) bc_malloc(arg_count+1);
+  arglist1 = bc_malloc(arg_count+1);
   for (temp = args, ix=0; temp != NULL; temp = temp->next)
     arglist1[ix++] = ( temp->av_name ? '1' : '0');
   arglist1[ix] = 0;
@@ -155,8 +145,7 @@ call_str (args)
 /* free_args frees an argument list ARGS. */
 
 void
-free_args (args)
-      arg_list *args;
+free_args (arg_list *args)
 { 
   arg_list *temp;
  
@@ -175,8 +164,7 @@ free_args (args)
    warnings are generated for array parameters. */
 
 void
-check_params ( params, autos )
-     arg_list *params, *autos;
+check_params (arg_list *params, arg_list *autos)
 {
   arg_list *tmp1, *tmp2;
 
@@ -194,7 +182,7 @@ check_params ( params, autos )
 	      tmp2 = tmp2->next;
 	    }
 	  if (tmp1->arg_is_var)
-	    warn ("Variable array parameter");
+	    ct_warn ("Variable array parameter");
 	  tmp1 = tmp1->next;
 	}
     }
@@ -238,13 +226,12 @@ check_params ( params, autos )
 
 /* genstr management to avoid buffer overflow. */
 void
-set_genstr_size (size)
-     int size;
+set_genstr_size (int size)
 {
   if (size > genlen) {
     if (genstr != NULL)
       free(genstr);
-    genstr = (char *) bc_malloc (size);
+    genstr = bc_malloc (size);
     genlen = size;
   }
 }
@@ -253,7 +240,7 @@ set_genstr_size (size)
 /* Initialize the code generator the parser. */
 
 void
-init_gen ()
+init_gen (void)
 {
   /* Get things ready. */
   break_label = 0;
@@ -273,8 +260,7 @@ init_gen ()
 /* generate code STR for the machine. */
 
 void
-generate (str)
-      const char *str;
+generate (const char *str)
 {
   did_gen = TRUE;
   if (compile_only)
@@ -295,7 +281,7 @@ generate (str)
 /* Execute the current code as loaded. */
 
 void
-run_code()
+run_code(void)
 {
   /* If no compile errors run the current code. */
   if (!had_error && did_gen)
@@ -322,8 +308,7 @@ run_code()
    break the output with a "\<cr>".  Always used for numbers. */
 
 void
-out_char (ch)
-     int ch;
+out_char (int ch)
 {
   if (ch == '\n')
     {
@@ -349,8 +334,7 @@ out_char (ch)
    In POSIX bc, strings are not broken across lines. */
 
 void
-out_schar (ch)
-     int ch;
+out_schar (int ch)
 {
   if (ch == '\n')
     {
@@ -380,9 +364,7 @@ out_schar (ch)
     ID.  If there is no node in TREE with ID, NULL is returned. */
 
 id_rec *
-find_id (tree, id)
-     id_rec *tree;
-     const char   *id;
+find_id (id_rec *tree, const char *id)
 {
   int cmp_result;
   
@@ -406,9 +388,7 @@ find_id (tree, id)
    ROOT down is increased otherwise it returns FALSE.  This is a
    recursive balanced binary tree insertion algorithm. */
 
-int insert_id_rec (root, new_id)
-     id_rec **root;
-     id_rec *new_id;
+int insert_id_rec (id_rec **root, id_rec *new_id)
 {
   id_rec *A, *B;
 
@@ -540,7 +520,7 @@ int insert_id_rec (root, new_id)
 /* Initialize variables for the symbol table tree. */
 
 void
-init_tree()
+init_tree(void)
 {
   name_tree  = NULL;
   next_array = 1;
@@ -553,22 +533,20 @@ init_tree()
 /* Lookup routines for symbol table names. */
 
 int
-lookup (name, namekind)
-     char *name;
-     int  namekind;
+lookup (char *name, int  namekind)
 {
   id_rec *id;
 
   /* Warn about non-standard name. */
   if (strlen(name) != 1)
-    warn ("multiple letter name - %s", name);
+    ct_warn ("multiple letter name - %s", name);
 
   /* Look for the id. */
   id = find_id (name_tree, name);
   if (id == NULL)
     {
       /* We need to make a new item. */
-      id = (id_rec *) bc_malloc (sizeof (id_rec));
+      id = bc_malloc (sizeof (id_rec));
       id->id = strcopyof (name);
       id->a_name = 0;
       id->f_name = 0;
@@ -596,14 +574,14 @@ lookup (name, namekind)
 	  return (-id->a_name);
 	}
       yyerror ("Too many array variables");
-      exit (1);
+      bc_exit (1);
+      /*NOTREACHED*/
 
     case FUNCT:
     case FUNCTDEF:
       if (id->f_name != 0)
 	{
-	  if (namekind != FUNCT)
-	    free(name);
+          free(name);
 	  /* Check to see if we are redefining a math lib function. */ 
 	  if (use_math && namekind == FUNCTDEF && id->f_name <= 6)
 	    id->f_name = next_func++;
@@ -618,7 +596,8 @@ lookup (name, namekind)
 	  return (id->f_name);
 	}
       yyerror ("Too many functions");
-      exit (1);
+      bc_exit (1);
+      /*NOTREACHED*/
 
     case SIMPLE:
       if (id->v_name != 0)
@@ -635,18 +614,21 @@ lookup (name, namekind)
 	  return (id->v_name);
 	}
       yyerror ("Too many variables");
-      exit (1);
+      bc_exit (1);
+      /*NOTREACHED*/
+
     }
 
   yyerror ("End of util.c/lookup() reached.  Please report this bug.");
-  exit (1);
-  /* not reached */
+  bc_exit (1);
+  /*NOTREACHED*/
+  return 0;
 }
 
 /* Print out the limits of this program. */
 
 void
-limits()
+limits(void)
 {
   printf ("BC_BASE_MAX     = %d\n",  BC_BASE_MAX);
   printf ("BC_DIM_MAX      = %ld\n", (long) BC_DIM_MAX);
@@ -663,8 +645,7 @@ limits()
    have to do it!  SIZE is the number of bytes to allocate. */
 
 void *
-bc_malloc (size)
-     int size;
+bc_malloc (size_t size)
 {
   void *ptr;
 
@@ -681,10 +662,11 @@ bc_malloc (size)
 /* Malloc could not get enought memory. */
 
 void
-out_of_memory()
+out_of_memory(void)
 {
   fprintf (stderr, "Fatal error: Out of memory for malloc.\n");
-  exit (1);
+  bc_exit (1);
+  /*NOTREACHED*/
 }
 
 
@@ -732,15 +714,15 @@ yyerror (str, va_alist)
 #ifndef VARARGS
 #ifdef __STDC__
 void 
-warn (const char *mesg, ...)
+ct_warn (const char *mesg, ...)
 #else
 void
-warn (mesg)
+ct_warn (mesg)
      const char *mesg;
 #endif
 #else
 void
-warn (mesg, va_alist)
+ct_warn (mesg, va_alist)
      const char *mesg;
 #endif
 {
@@ -821,13 +803,11 @@ void
 rt_warn (const char *mesg, ...)
 #else
 void
-rt_warn (mesg)
-     const char *mesg;
+rt_warn (const char *mesg)
 #endif
 #else
 void
-rt_warn (mesg, va_alist)
-     const char *mesg;
+rt_warn (const char *mesg)
 #endif
 {
   va_list args;
@@ -843,4 +823,16 @@ rt_warn (mesg, va_alist)
   va_end (args);
 
   fprintf (stderr, "\n");
+}
+
+/* bc_exit: Make sure to reset the edit state. */
+
+void bc_exit(int val)
+{
+#if defined(LIBEDIT)
+  if (edit != NULL)
+    el_end(edit);
+#endif
+  exit(val);
+  /*NOTREACHED*/
 }

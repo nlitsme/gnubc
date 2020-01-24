@@ -1,11 +1,12 @@
 /* 
  * interface dc to the bc numeric routines
  *
- * Copyright (C) 1994, 1997, 1998, 2000, 2005 Free Software Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2000, 2005, 2008, 2013
+ * Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
+ * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,10 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, you can write to:
- *   The Free Software Foundation, Inc.
- *   51 Franklin Street, Fifth Floor
- *   Boston, MA 02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 /* This should be the only module that knows the internals of type dc_num */
@@ -417,20 +416,16 @@ dc_math_init DC_DECLVOID()
 }
 
 /* print out a dc_num in output base obase to stdout;
- * if newline_p is DC_WITHNL, terminate output with a '\n';
  * if discard_p is DC_TOSS then deallocate the value after use
  */
 void
-dc_out_num DC_DECLARG((value, obase, newline_p, discard_p))
+dc_out_num DC_DECLARG((value, obase, discard_p))
 	dc_num value DC_DECLSEP
 	int obase DC_DECLSEP
-	dc_newline newline_p DC_DECLSEP
 	dc_discard discard_p DC_DECLEND
 {
 	out_char('\0'); /* clear the column counter */
 	bc_out_num(CastNum(value), obase, out_char, 0);
-	if (newline_p == DC_WITHNL)
-		putchar ('\n');
 	if (discard_p == DC_TOSS)
 		dc_free_num(&value);
 }

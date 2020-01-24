@@ -1,11 +1,12 @@
 /*
  * prototypes of all externally visible dc functions
  *
- * Copyright (C) 1994, 1997, 1998, 2003 Free Software Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2003, 2008, 2012, 2013
+ * Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
+ * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,12 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, you can either send email to this
- * program's author (see below) or write to:
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    The Free Software Foundation, Inc.
- *    51 Franklin Street, Fifth Floor
- *    Boston, MA 02110-1301  USA
  */
 
 extern const char *dc_str2charp DC_PROTO((dc_str));
@@ -42,8 +39,8 @@ extern void dc_free_str DC_PROTO((dc_str *));
 extern void dc_garbage DC_PROTO((const char *, int));
 extern void dc_math_init DC_PROTO((void));
 extern void dc_memfail DC_PROTO((void));
-extern void dc_out_num DC_PROTO((dc_num, int, dc_newline, dc_discard));
-extern void dc_out_str DC_PROTO((dc_str, dc_newline, dc_discard));
+extern void dc_out_num DC_PROTO((dc_num, int, dc_discard));
+extern void dc_out_str DC_PROTO((dc_str, dc_discard));
 extern void dc_print DC_PROTO((dc_data, int, dc_newline, dc_discard));
 extern void dc_printall DC_PROTO((int));
 extern void dc_push DC_PROTO((dc_data));
@@ -63,6 +60,7 @@ extern int  dc_numlen DC_PROTO((dc_num));
 extern int  dc_pop DC_PROTO((dc_data *));
 extern int  dc_register_get DC_PROTO((int, dc_data *));
 extern int  dc_register_pop DC_PROTO((int, dc_data *));
+extern void dc_stack_rotate DC_PROTO((int));
 extern int  dc_tell_length DC_PROTO((dc_data, dc_discard));
 extern int  dc_tell_scale DC_PROTO((dc_num, dc_discard));
 extern int  dc_tell_stackdepth DC_PROTO((void));

@@ -1,4 +1,5 @@
-This is bc.info, produced by makeinfo version 4.8 from bc.texi.
+This is ../../doc/bc.info, produced by makeinfo version 4.8 from
+../../doc/bc.texi.
 
 START-INFO-DIR-ENTRY
 * bc: (bc).                    An arbitrary precision calculator language.
@@ -386,7 +387,7 @@ These have to do with user-defined functions and standard functions.
 They all appear as "NAME`('PARAMETERS`)'".  *Note Functions::, for
 user-defined functions.  The standard functions are:
 
-`length ( expression )'
+`length ( EXPRESSION )'
      The value of the length function is the number of significant
      digits in the expression.
 
@@ -400,11 +401,11 @@ user-defined functions.  The standard functions are:
      function is the number read from the standard input using the
      current value of the variable IBASE for the conversion base.
 
-`scale ( expression )'
+`scale ( EXPRESSION )'
      The value of the `scale' function is the number of digits after the
      decimal point in the expression.
 
-`sqrt ( expression )'
+`sqrt ( EXPRESSION )'
      The value of the `sqrt' function is the square root of the
      expression.  If the expression is negative, a run time error is
      generated.
@@ -433,7 +434,7 @@ statements separated by semicolons and newlines.  The following is a
 list of `bc' statements and what they do: (Things enclosed in brackets
 ( [ ] ) are optional parts of the statement.)
 
-EXPRESSION
+`EXPRESSION'
      This statement does one of two things.  If the expression starts
      with "<variable> <assignment> ...", it is considered to be an
      assignment statement.  If the expression is not an assignment
@@ -464,13 +465,13 @@ EXPRESSION
      may allow the use of a single period (.) which is not part of a
      number as a short hand notation for for LAST.)
 
-STRING
+`STRING'
      The string is printed to the output.  Strings start with a double
      quote character and contain all characters until the next double
      quote character.  All characters are taken literally, including
      any newline.  No newline character is printed after the string.
 
-`PRINT' LIST
+`print LIST'
      The `print' statement (an extension) provides another method of
      output.  The LIST is a list of strings and expressions separated by
      commas.  Each string or expression is printed in the order of the
@@ -484,24 +485,24 @@ STRING
      (tab), and "\e" (backslash).  Any other character following the
      backslash will be ignored.
 
-{ STATEMENT_LIST }
+`{ STATEMENT_LIST }'
      This is the compound statement.  It allows multiple statements to
      be grouped together for execution.
 
-`IF' ( EXPRESSION ) STATEMENT1 [`ELSE' STATEMENT2]
+`if ( EXPRESSION ) STATEMENT1 [else STATEMENT2]'
      The if statement evaluates the expression and executes statement1
      or statement2 depending on the value of the expression.  If the
      expression is non-zero, statement1 is executed.  If statement2 is
      present and the value of the expression is 0, then statement2 is
      executed.  (The `else' clause is an extension.)
 
-`WHILE' ( EXPRESSION ) STATEMENT
+`while ( EXPRESSION ) STATEMENT'
      The while statement will execute the statement while the expression
      is non-zero.  It evaluates the expression before each execution of
      the statement.   Termination of the loop is caused by a zero
      expression value or the execution of a `break' statement.
 
-`FOR' ( [EXPRESSION1] ; [EXPRESSION2] ; [EXPRESSION3] ) STATEMENT
+`for ( [EXPRESSION1] ; [EXPRESSION2] ; [EXPRESSION3] ) STATEMENT'
      The `for' statement controls repeated execution of the statement.
      EXPRESSION1 is evaluated before the loop.  EXPRESSION2 is
      evaluated before each execution of the statement.  If it is
@@ -521,24 +522,24 @@ STRING
              expression3;
           }
 
-`BREAK'
+`break'
      This statement causes a forced exit of the most recent enclosing
      `while' statement or `for' statement.
 
-`CONTINUE'
+`continue'
      The `continue' statement (an extension)  causes the most recent
      enclosing `for' statement to start the next iteration.
 
-`HALT'
+`halt'
      The `halt' statement (an extension) is an executed statement that
      causes the `bc' processor to quit only when it is executed.  For
      example, "if (0 == 1) halt" will not cause `bc' to terminate
      because the `halt' is not executed.
 
-`RETURN'
+`return'
      Return the value 0 from a function.  (*Note Functions::.)
 
-`RETURN' ( EXPRESSION )
+`return ( EXPRESSION )'
      Return the value of the expression from a function.  (*Note
      Functions::.)  As an extension, the parenthesis are not required.
 
@@ -696,7 +697,7 @@ library defines the following functions:
 `e (X)'
      The exponential function of raising E to the value X.
 
-`j (N,X)'
+`j (N, X)'
      The Bessel function of integer order N of X.
 
 
@@ -825,51 +826,51 @@ for debugging the parser and preparing the math library.
 extended to add more functionality and additions, where new features
 are added.  The following is the list of differences and extensions.
 
-LANG ENVIRONMENT
+LANG environment
      This version does not conform to the POSIX standard in the
      processing of the LANG environment variable and all environment
      variables starting with LC_.
 
-NAMES
+names
      Traditional and POSIX `bc' have single letter names for functions,
      variables and arrays.  They have been extended to be
      multi-character names that start with a letter and may contain
      letters, numbers and the underscore character.
 
-STRINGS
+Strings
      Strings are not allowed to contain NUL characters.  POSIX says all
      characters must be included in strings.
 
-LAST
+last
      POSIX `bc' does not have a \fBlast variable.  Some implementations
      of `bc' use the period (.) in a similar way.
 
-COMPARISONS
+comparisons
      POSIX `bc' allows comparisons only in the `if' statement, the
      `while' statement, and the second expression of the `for'
      statement.  Also, only one relational operation is allowed in each
      of those statements.
 
-IF STATEMENT, ELSE CLAUSE
+`if' statement, `else' clause
      POSIX `bc' does not have an `else' clause.
 
-FOR STATEMENT
+`for' statement
      POSIX `bc' requires all expressions to be present in the `for'
      statement.
 
-&&, ||, !
+`&&,' `||', `!'
      POSIX `bc' does not have the logical operators.
 
-READ FUNCTION
+`read' function
      POSIX `bc' does not have a `read' function.
 
-PRINT STATEMENT
+`print' statement
      POSIX `bc' does not have a `print' statement.
 
-CONTINUE STATEMENT
+`continue' statement
      POSIX `bc' does not have a continue statement.
 
-ARRAY PARAMETERS
+array parameters
      POSIX `bc' does not (currently) support array parameters in full.
      The POSIX grammar allows for arrays in function definitions, but
      does not provide a method to specify an array as an actual
@@ -877,11 +878,11 @@ ARRAY PARAMETERS
      Traditional implementations of `bc' have only call by value array
      parameters.
 
-FUNCTION FORMAT
+function format
      POSIX `bc' requires the opening brace on the same line as the
      `define' key word and the `auto' statement on the next line.
 
-=+, =-, =*, =/, =%, =^
+`=+', `=-', `=*', `=/', `=%', `=^'
      POSIX `bc' does not require these "old style" assignment operators
      to be defined.  This version may allow these "old style"
      assignments.  Use the `limits' statement to see if the installed
@@ -889,12 +890,12 @@ FUNCTION FORMAT
      assignment operators, the statement "a =- 1" will decrement `a' by
      1 instead of setting `a' to the value -1.
 
-SPACES IN NUMBERS
+spaces in numbers
      Other implementations of `bc' allow spaces in numbers.  For
      example, "x=1 3" would assign the value 13 to the variable x.  The
      same statement would cause a syntax error in this version of `bc'.
 
-ERRORS AND EXECUTION
+errors and execution
      This implementation varies from other implementations in terms of
      what code will be executed when syntax and other errors are found
      in the program.  If a syntax error is found in a function
@@ -918,7 +919,7 @@ ERRORS AND EXECUTION
      execution of the current execution block.  A runtime warning will
      not terminate the current execution block.
 
-INTERRUPTS
+Interrupts
      During an interactive session, the SIGINT signal (usually
      generated by the control-C character from the terminal) will cause
      execution of the current execution block to be interrupted.  It
@@ -1002,29 +1003,29 @@ The following environment variables are processed by `bc':
 
 
 Tag Table:
-Node: Top181
-Node: Introduction473
-Node: Description638
-Node: Command Line Options2097
-Node: Basic Elements2667
-Node: Numbers2842
-Node: Variables3610
-Node: Comments4724
-Node: Expressions5470
-Node: About Expressions and Special Variables5754
-Node: Basic Expressions7495
-Node: Relational Expressions10441
-Node: Boolean Expressions11451
-Node: Precedence12011
-Node: Special Expressions13176
-Node: Statements14563
-Node: Pseudo Statements21192
-Node: Functions21845
-Node: Math Library Functions27008
-Node: Examples27723
-Node: Readline and Libedit Options29707
-Node: Comparison with Other Implementations30738
-Node: Limits35990
-Node: Environment Variables37247
+Node: Top201
+Node: Introduction493
+Node: Description658
+Node: Command Line Options2117
+Node: Basic Elements2687
+Node: Numbers2862
+Node: Variables3630
+Node: Comments4744
+Node: Expressions5490
+Node: About Expressions and Special Variables5774
+Node: Basic Expressions7515
+Node: Relational Expressions10461
+Node: Boolean Expressions11471
+Node: Precedence12031
+Node: Special Expressions13196
+Node: Statements14583
+Node: Pseudo Statements21216
+Node: Functions21869
+Node: Math Library Functions27032
+Node: Examples27748
+Node: Readline and Libedit Options29732
+Node: Comparison with Other Implementations30763
+Node: Limits36045
+Node: Environment Variables37302
 
 End Tag Table

@@ -2,25 +2,16 @@
 .\" dc.1 - the *roff document processor source for the dc manual
 .\"
 .\" This file is part of GNU dc.
-.\" Copyright (C) 1994, 1997, 1998, 2000, 2001, 2005, 2006 Free Software Foundation, Inc.
+.\" Copyright (C) 1994, 1997, 1998, 2000, 2001, 2005, 2006, 2008, 2013, 2016
+.\" Free Software Foundation, Inc.
 .\"
-.\" This program is free software; you can redistribute it and/or modify
-.\" it under the terms of the GNU General Public License as published by
-.\" the Free Software Foundation; either version 2 of the License , or
-.\" (at your option) any later version.
+.\" Permission is granted to copy, distribute and/or modify this document
+.\" under the terms of the GNU Free Documentation License, Version 1.2 or
+.\" any later version published by the Free Software Foundation; with no
+.\" Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+.\" Texts.
 .\"
-.\" This program is distributed in the hope that it will be useful,
-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-.\" GNU General Public License for more details.
-.\"
-.\" You should have received a copy of the GNU General Public License
-.\" along with this program; see the file COPYING.  If not, write to:
-.\"   The Free Software Foundation, Inc.
-.\"   51 Franklin Street, Fifth Floor
-.\"   Boston, MA 02110-1301  USA
-.\"
-.TH dc 1 "2006-06-11" "GNU Project"
+.TH dc 1 "2008-05-22" "GNU Project"
 .ds dc \fIdc\fP
 .ds Dc \fIdc\fP
 .SH NAME
@@ -210,7 +201,8 @@ but, unlike \fB^\fP, this command will work with arbitrarily large exponents.
 Pops one value,
 computes its square root,
 and pushes that.
-The precision value specifies the number of fraction digits in the result.
+The maximum of the precision value and the precision of the argument
+is used to determine the number of fraction digits in the result.
 .PP
 Most arithmetic operations are affected by the ``precision value'',
 which you can set with the
@@ -233,6 +225,26 @@ Thus, ``4d*p'' computes 4 squared and prints it.
 .B r
 Reverses the order of (swaps) the top two values on the stack.
 (This can also be accomplished with the sequence \fBSaSbLaLb\fP.)
+.TP
+.B R
+Pops the top-of-stack as an integer
+.IR n .
+Cyclically rotates the top
+.I n
+items on the updated stack.
+If
+.I n
+is positive, then the rotation direction will make the topmost
+element the second-from top;
+if
+.I n
+is negative, then the rotation will make the topmost element the
+.IR n -th
+element from the top.
+If the stack depth is less than
+.IR n ,
+then the entire stack is rotated (in the appropriate direction),
+without any error being reported.
 .SH
 Registers
 .PP
@@ -249,6 +261,7 @@ it into register
 Copy the value in register
 .I r
 and push it onto the stack.
+The value 0 is retrieved if the register is uninitialized.
 This does not alter the contents of
 .IR r .
 .PP
@@ -449,7 +462,7 @@ Status Inquiry
 .TP
 .B Z
 Pops a value off the stack,
-calculates the number of digits it has
+calculates the number of decimal digits it has
 (or number of characters, if it is a string)
 and pushes that number.
 The digit count for a number does

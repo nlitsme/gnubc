@@ -1,33 +1,41 @@
-This is dc.info, produced by makeinfo version 4.8 from dc.texi.
+This is ../../doc/dc.info, produced by makeinfo version 4.8 from
+../../doc/dc.texi.
 
 START-INFO-DIR-ENTRY
 * dc: (dc).                   Arbitrary precision RPN "Desktop Calculator".
 END-INFO-DIR-ENTRY
 
-   This file documents `dc', an arbitrary precision calculator.
+   This manual documents version 1.4 of GNU `dc', an arbitrary
+precision calculator.
 
-   Published by the Free Software Foundation, Inc.  51 Franklin Street,
-Fifth Floor Boston, MA 02110-1301  USA
+   Copyright (C) 1984, 1994, 1997, 1998, 2000, 2005, 2006, 2008, 2013,
+2016 Free Software Foundation, Inc.
 
-   Copyright (C) 1984, 1994, 1997, 1998, 2000, 2005, 2006 Free Software
-Foundation, Inc.
-
-   Permission is granted to make and distribute verbatim copies of this
-manual provided the copyright notice and this permission notice are
-preserved on all copies.
-
-   Permission is granted to copy and distribute modified versions of
-this manual under the conditions for verbatim copying, provided that
-the entire resulting derived work is distributed under the terms of a
-permission notice identical to this one.
-
-   Permission is granted to copy and distribute translations of this
-manual into another language, under the above conditions for modified
-versions, except that this permission notice may be stated in a
-translation approved by the Foundation.
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.2 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, with no Front-Cover Texts,
+     and with no Back-Cover Texts.  A copy of the license can be found
+     at `http://www.gnu.org/licenses/fdl.html' .
 
 
-File: dc.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
+File: dc.info,  Node: Top,  Next: Introduction,  Up: (dir)
+
+GNU dc
+******
+
+This manual documents version 1.4 of GNU `dc', an arbitrary precision
+calculator.
+
+   Copyright (C) 1984, 1994, 1997, 1998, 2000, 2005, 2006, 2008, 2013,
+2016 Free Software Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.2 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, with no Front-Cover Texts,
+     and with no Back-Cover Texts.  A copy of the license can be found
+     at `http://www.gnu.org/licenses/fdl.html' .
 
 * Menu:
 
@@ -206,13 +214,13 @@ File: dc.info,  Node: Arithmetic,  Next: Stack Control,  Prev: Printing Commands
      fractional part of this exponent will be ignored.  The third value
      popped is the base which gets exponentiated, which should be an
      integer.  For small integers this is like the sequence `Sm^Lm%',
-     but, unlike `^', this command will work with arbritrarily large
+     but, unlike `^', this command will work with arbitrarily large
      exponents.  (This command is a GNU extension.)
 
 `v'
      Pops one value, computes its square root, and pushes that.  The
-     precision value specifies the number of fraction digits in the
-     result.
+     maximum of the precision value and the precision of the argument
+     is used to determine the number of fraction digits in the result.
 
    Most arithmetic operations are affected by the _precision value_,
 which you can set with the `k' command.  The default precision value is
@@ -237,6 +245,16 @@ File: dc.info,  Node: Stack Control,  Next: Registers,  Prev: Arithmetic,  Up: T
      (This can also be accomplished with the sequence `SaSbLaLb'.)
      (This command is a GNU extension.)
 
+`R'
+     Pops the top-of-stack as an integer N.  Cyclically rotates the top
+     N items on the updated stack.  If N is positive, then the rotation
+     direction will make the topmost element the second-from top; if N
+     is negative, then the rotation will make the topmost element the
+     N-th element from the top.  If the stack depth is less than N then
+     the entire stack is rotated (in the appropriate direction),
+     without any error being reported.  (This command is a GNU
+     extension.)
+
 
 File: dc.info,  Node: Registers,  Next: Parameters,  Prev: Stack Control,  Up: Top
 
@@ -251,8 +269,9 @@ character.  You can store a number in a register and retrieve it later.
      R.
 
 `lR'
-     Copy the value in register R, and push it onto the stack.  This
-     does not alter the contents of R.
+     Copy the value in register R, and push it onto the stack.  The
+     value `0' is retrieved if the register is uninitialized or its
+     stack has become empty.  This does not alter the contents of R.
 
      Each register also contains its own stack.  The current register
      value is the top of the register's stack.
@@ -400,13 +419,13 @@ File: dc.info,  Node: Status Inquiry,  Next: Miscellaneous,  Prev: Strings,  Up:
 ****************
 
 `Z'
-     Pops a value off the stack, calculates the number of digits it has
-     (or number of characters, if it is a string) and pushes that
-     number.
+     Pops a value off the stack, calculates the number of decimal
+     digits it has (or number of characters, if it is a string) and
+     pushes that number.
 
      Note that the digit count for a number does _not_ include any
      leading zeros, even if those appear to the right of the radix
-     point.  This may seem a bit strange at first, but it is compatable
+     point.  This may seem a bit strange at first, but it is compatible
      with historical implementations of `dc', and can be argued to be
      useful for computing the magnitude of a value: `dSaXLaZ-' will
      compute the power-of-ten multiplier which would be needed to shift
@@ -430,7 +449,7 @@ File: dc.info,  Node: Miscellaneous,  Next: Reporting bugs,  Prev: Status Inquir
 
 `!'
      Will run the rest of the line as a system command.  Note that
-     parsing of the !<, !=, and !> commands take precidence, so if you
+     parsing of the !<, !=, and !> commands take precedence, so if you
      want to run a command starting with <, =, or > you will need to
      add a space after the !.
 
@@ -462,18 +481,18 @@ Email bug reports to <bug-dc@gnu.org>.
 
 
 Tag Table:
-Node: Top1109
-Node: Introduction1688
-Node: Invocation3037
-Node: Printing Commands3888
-Node: Arithmetic5933
-Node: Stack Control8850
-Node: Registers9334
-Ref: Registers-Footnote-110302
-Node: Parameters10454
-Node: Strings11719
-Node: Status Inquiry14876
-Node: Miscellaneous15936
-Node: Reporting bugs16909
+Node: Top793
+Node: Introduction1961
+Node: Invocation3310
+Node: Printing Commands4161
+Node: Arithmetic6206
+Node: Stack Control9182
+Node: Registers10173
+Ref: Registers-Footnote-111238
+Node: Parameters11390
+Node: Strings12655
+Node: Status Inquiry15812
+Node: Miscellaneous16880
+Node: Reporting bugs17853
 
 End Tag Table

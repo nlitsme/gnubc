@@ -8,14 +8,14 @@ EXTRA_DIST = bc.h bcdefs.h const.h fix-libmath_h global.h libmath.b proto.h \
              sbc.y
 noinst_HEADERS = libmath.h
 
-DISTCLEANFILES = sbc sbc.c sbc.h
+DISTCLEANFILES = sbc sbc.c sbc.h libmath.h
 
-MAINTAINERCLEANFILES = Makefile.in libmath.h bc.c bc.h scan.c \
+MAINTAINERCLEANFILES = Makefile.in bc.c bc.h scan.c \
 	bc.y bcdefs.h const.h execute.c fix-libmath_h \
 	global.c global.h libmath.b load.c main.c \
 	proto.h scan.l storage.c util.c
 
-INCLUDES = -I$(srcdir) -I$(srcdir)/../h
+AM_CPPFLAGS = -I$(srcdir) -I$(srcdir)/../h
 LIBBC = ../lib/libbc.a
 LIBL = @LEXLIB@
 LDADD = $(LIBBC) $(LIBL) @READLINELIB@
@@ -38,11 +38,11 @@ libmath.h: libmath.b
 
 fbcOBJ = main.o bc.o scan.o execute.o global.o load.o storage.o util.o \
          warranty.o
-fbc: $(fbcOBJ)
+fbc: $(fbcOBJ) $(LIBBC)
 	$(LINK) $(fbcOBJ) $(LIBBC) $(LIBL) $(READLINELIB) $(LIBS)
 
 sbcOBJ = main.o sbc.o scan.o execute.o global.o load.o storage.o util.o \
          warranty.o
 sbc.o: sbc.c
-sbc: $(sbcOBJ)
+sbc: $(sbcOBJ) $(LIBBC)
 	$(LINK) $(sbcOBJ) $(LIBBC) $(LIBL) $(READLINELIB) $(LIBS)

@@ -1,11 +1,12 @@
 /* 
  * implement stack functions for dc
  *
- * Copyright (C) 1994, 1997, 1998, 2000, 2005, 2006 Free Software Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2000, 2005, 2006, 2008, 2012, 2016
+ * Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
+ * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,12 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, you can either send email to this
- * program's author (see below) or write to:
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    The Free Software Foundation, Inc.
- *    51 Franklin Street, Fifth Floor
- *    Boston, MA 02110-1301  USA
  */
 
 /* This module is the only one that knows what stacks (both the
@@ -311,9 +308,10 @@ dc_top_of_stack DC_DECLARG((result))
 	return DC_SUCCESS;
 }
 
-/* set *result to a dup of the value on the top of the named register stack */
+/* set *result to a dup of the value on the top of the named register stack,
+ * or 0 (zero) if the stack is empty */
 /*
- * DC_FAIL is returned if the named stack is empty (and *result unchanged),
+ * DC_FAIL is returned if an internal bug is detected
  * DC_SUCCESS is returned otherwise
  */
 int
@@ -325,12 +323,15 @@ dc_register_get DC_DECLARG((regid, result))
 
 	regid = regmap(regid);
 	r = dc_register[regid];
-	if (r==NULL || r->value.dc_type==DC_UNINITIALIZED){
-		fprintf(stderr, "%s: register ", progname);
-		dc_show_id(stderr, regid, " is empty\n");
+	if (r==NULL){
+		*result = dc_int2data(0);
+	}else if (r->value.dc_type==DC_UNINITIALIZED){
+		fprintf(stderr, "%s: BUG: register ", progname);
+		dc_show_id(stderr, regid, " exists but is uninitialized?\n");
 		return DC_FAIL;
+	}else{
+		*result = dc_dup(r->value);
 	}
-	*result = dc_dup(r->value);
 	return DC_SUCCESS;
 }
 
@@ -399,7 +400,7 @@ dc_register_pop DC_DECLARG((stackid, result))
 
 	stackid = regmap(stackid);
 	r = dc_register[stackid];
-	if (r == NULL){
+	if (r==NULL || r->value.dc_type==DC_UNINITIALIZED){
 		fprintf(stderr, "%s: stack register ", progname);
 		dc_show_id(stderr, stackid, " is empty\n");
 		return DC_FAIL;
@@ -411,6 +412,44 @@ dc_register_pop DC_DECLARG((stackid, result))
 	dc_array_free(r->array);
 	free(r);
 	return DC_SUCCESS;
+}
+
+
+/* cyclically rotate the "n" topmost elements of the stack;
+ *   negative "n" rotates forward (topomost element becomes n-th deep)
+ *   positive "n" rotates backward (topmost element becomes 2nd deep)
+ *
+ * If stack depth is less than "n", whole stack is rotated
+ * (without raising an error).
+ */
+void
+dc_stack_rotate(int n)
+{
+	dc_list *p; /* becomes bottom of sub-stack */
+	dc_list *r; /* predecessor of "p" */
+	int absn = n<0 ? -n : n;
+
+	/* always do nothing for empty stack or degenerate rotation depth */
+	if (!dc_stack || absn < 2)
+		return;
+	/* find bottom of rotation sub-stack */
+	r = NULL;
+	for (p=dc_stack; p->link && --absn>0; p=p->link)
+		r = p;
+	/* if stack has only one element, treat rotation as no-op */
+	if (!r)
+		return;
+	/* do the rotation, in appropriate direction */
+	if (n > 0) {
+		r->link = p->link;
+		p->link = dc_stack;
+		dc_stack = p;
+	} else {
+		dc_list *new_tos = dc_stack->link;
+		dc_stack->link = p->link;
+		p->link = dc_stack;
+		dc_stack = new_tos;
+	}
 }
 
 

@@ -1,10 +1,10 @@
 /*  This file is part of GNU bc.
 
-    Copyright (C) 1991-1994, 1997, 2006 Free Software Foundation, Inc.
+    Copyright (C) 1991-1994, 1997, 2006, 2008, 2012-2017 Free Software Foundation, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License , or
+    the Free Software Foundation; either version 3 of the License , or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -13,10 +13,8 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; see the file COPYING.  If not, write to:
-      The Free Software Foundation, Inc.
-      Foundation, Inc.  51 Franklin Street, Fifth Floor,
-      Boston, MA 02110-1301  USA
+    along with this program; see the file COPYING.  If not, see
+    <http://www.gnu.org/licenses>.
 
     You may contact the author by:
        e-mail:  philnelson@acm.org
@@ -48,103 +46,94 @@
 #include <stdlib.h>
 #endif
 
-/* Define the _PROTOTYPE macro if it is needed. */
-
-#ifndef _PROTOTYPE
-#ifdef __STDC__
-#define _PROTOTYPE(func, args) func args
-#else
-#define _PROTOTYPE(func, args) func()
-#endif
-#endif
-
 /* From execute.c */
-_PROTOTYPE(void stop_execution, (int));
-_PROTOTYPE(unsigned char byte, (program_counter *pc_));
-_PROTOTYPE(void execute, (void));
-_PROTOTYPE(int prog_char, (void));
-_PROTOTYPE(int input_char, (void));
-_PROTOTYPE(void push_constant, (int (*in_char)(void), int conv_base));
-_PROTOTYPE(void push_b10_const, (program_counter *pc_));
-_PROTOTYPE(void assign, (int c_code_));
+void stop_execution (int);
+unsigned char byte (program_counter *pc_);
+void execute (void);
+int prog_char (void);
+int input_char (void);
+void push_constant (int (*in_char)(void), int conv_base);
+void push_b10_const (program_counter *pc_);
+void assign (char code);
 
 /* From util.c */
-_PROTOTYPE(char *strcopyof, (const char *str));
-_PROTOTYPE(arg_list *nextarg, (arg_list *args, int val, int is_var));
-_PROTOTYPE(char *arg_str, (arg_list *args));
-_PROTOTYPE(char *call_str, (arg_list *args));
-_PROTOTYPE(void free_args, (arg_list *args));
-_PROTOTYPE(void check_params, (arg_list *params, arg_list *autos));
-_PROTOTYPE(void set_genstr_size, (int));
-_PROTOTYPE(void init_gen, (void));
-_PROTOTYPE(void generate, (const char *str));
-_PROTOTYPE(void run_code, (void));
-_PROTOTYPE(void out_char, (int ch));
-_PROTOTYPE(void out_schar, (int ch));
-_PROTOTYPE(id_rec *find_id, (id_rec *tree, const char *id));
-_PROTOTYPE(int insert_id_rec, (id_rec **root, id_rec *new_id));
-_PROTOTYPE(void init_tree, (void));
-_PROTOTYPE(int lookup, (char *name, int namekind));
-_PROTOTYPE(void *bc_malloc, (int));
-_PROTOTYPE(void out_of_memory, (void));
-_PROTOTYPE(void welcome, (void));
-_PROTOTYPE(void warranty, (const char *));
-_PROTOTYPE(void show_bc_version, (void));
-_PROTOTYPE(void limits, (void));
-_PROTOTYPE(void yyerror, (const char *str ,...));
-_PROTOTYPE(void warn, (const char *mesg ,...));
-_PROTOTYPE(void rt_error, (const char *mesg ,...));
-_PROTOTYPE(void rt_warn, (const char *mesg ,...));
+char *strcopyof (const char *str);
+arg_list *nextarg (arg_list *args, int val, int is_var);
+char *arg_str (arg_list *args);
+char *call_str (arg_list *args);
+void free_args (arg_list *args);
+void check_params (arg_list *params, arg_list *autos);
+void set_genstr_size (int);
+void init_gen (void);
+void generate (const char *str);
+void run_code (void);
+void out_char (int ch);
+void out_schar (int ch);
+id_rec *find_id (id_rec *tree, const char *id);
+int insert_id_rec (id_rec **root, id_rec *new_id);
+void init_tree (void);
+int lookup (char *name, int namekind);
+void *bc_malloc (size_t);
+void out_of_memory (void);
+void welcome (void);
+void warranty (const char *);
+void show_bc_version (void);
+void limits (void);
+void yyerror (const char *str ,...);
+void ct_warn (const char *mesg ,...);
+void rt_error (const char *mesg ,...);
+void rt_warn (const char *mesg ,...);
+void bc_exit (int);
 
 /* From load.c */
-_PROTOTYPE(void init_load, (void));
-_PROTOTYPE(void addbyte, (int byte_));
-_PROTOTYPE(void def_label, (long lab));
-_PROTOTYPE(long long_val, (const char **str));
-_PROTOTYPE(void load_code, (const char *code));
+void init_load (void);
+void addbyte (unsigned char thebyte);
+void def_label (unsigned long lab);
+long long_val (const char **str);
+void load_code (const char *code);
 
 /* From main.c */
-_PROTOTYPE(int open_new_file, (void));
-_PROTOTYPE(void new_yy_file, (FILE *file));
-_PROTOTYPE(void use_quit, (int));
+int open_new_file (void);
+void new_yy_file (FILE *file);
+void use_quit (int);
 
 /* From storage.c */
-_PROTOTYPE(void init_storage, (void));
-_PROTOTYPE(void more_functions, (void));
-_PROTOTYPE(void more_variables, (void));
-_PROTOTYPE(void more_arrays, (void));
-_PROTOTYPE(void clear_func, (int func ));
-_PROTOTYPE(int fpop, (void));
-_PROTOTYPE(void fpush, (int val ));
-_PROTOTYPE(void pop, (void));
-_PROTOTYPE(void push_copy, (bc_num num ));
-_PROTOTYPE(void push_num, (bc_num num ));
-_PROTOTYPE(char check_stack, (int depth ));
-_PROTOTYPE(bc_var *get_var, (int var_name ));
-_PROTOTYPE(bc_num *get_array_num, (int var_index, long _index_ ));
-_PROTOTYPE(void store_var, (int var_name ));
-_PROTOTYPE(void store_array, (int var_name ));
-_PROTOTYPE(void load_var, (int var_name ));
-_PROTOTYPE(void load_array, (int var_name ));
-_PROTOTYPE(void decr_var, (int var_name ));
-_PROTOTYPE(void decr_array, (int var_name ));
-_PROTOTYPE(void incr_var, (int var_name ));
-_PROTOTYPE(void incr_array, (int var_name ));
-_PROTOTYPE(void auto_var, (int name ));
-_PROTOTYPE(void free_a_tree, (bc_array_node *root, int depth ));
-_PROTOTYPE(void pop_vars, (arg_list *list ));
-_PROTOTYPE(void process_params, (program_counter *_pc_, int func ));
+void init_storage (void);
+void more_functions (void);
+void more_variables (void);
+void more_arrays (void);
+void clear_func (int func);
+int fpop (void);
+void fpush (int val);
+void pop (void);
+void push_copy (bc_num num);
+void push_num (bc_num num);
+char check_stack (int depth);
+bc_var *get_var (int var_name);
+bc_num *get_array_num (int var_index, unsigned long _index_);
+void store_var (int var_name);
+void store_array (int var_name);
+void load_var (int var_name);
+void load_array (int var_name);
+void decr_var (int var_name);
+void decr_array (int var_name);
+void incr_var (int var_name);
+void incr_array (int var_name);
+void auto_var (int name);
+void free_a_tree (bc_array_node *root, int depth);
+void pop_vars (arg_list *list);
+void process_params (program_counter *_pc_, int func);
 
 /* For the scanner and parser.... */
-_PROTOTYPE(int yyparse, (void));
-_PROTOTYPE(int yylex, (void)); 
+int yyparse (void);
+int yylex (void);
 
 #if defined(LIBEDIT)
 /* The *?*&^ prompt function */
-_PROTOTYPE(char *null_prompt, (EditLine *));
+char *null_prompt (EditLine *);
 #endif
 
 /* Other things... */
 #ifndef HAVE_UNISTD_H
-_PROTOTYPE (int getopt, (int, char *[], CONST char *));
+(int getopt (int, char *[], CONST char *);
 #endif

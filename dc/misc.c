@@ -1,11 +1,12 @@
 /* 
  * misc. functions for the "dc" Desk Calculator language.
  *
- * Copyright (C) 1994, 1997, 1998, 2000, 2006 Free Software Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2000, 2006, 2008, 2013
+ * Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
+ * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,11 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, you can either send email to this
- * program's author (see below) or write to:
- *   The Free Software Foundation, Inc.
- *   51 Franklin Street, Fifth Floor
- *   Boston, MA 02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 /* This module contains miscellaneous functions that have no
@@ -157,12 +155,15 @@ dc_print DC_DECLARG((value, obase, newline_p, discard_p))
 	dc_discard discard_p DC_DECLEND
 {
 	if (value.dc_type == DC_NUMBER) {
-		dc_out_num(value.v.number, obase, newline_p, discard_p);
+		dc_out_num(value.v.number, obase, discard_p);
 	} else if (value.dc_type == DC_STRING) {
-		dc_out_str(value.v.string, newline_p, discard_p);
+		dc_out_str(value.v.string, discard_p);
 	} else {
 		dc_garbage("in data being printed", -1);
 	}
+	if (newline_p == DC_WITHNL)
+		putchar ('\n');
+	fflush(stdout);
 }
 
 /* return a duplicate of the passed value, regardless of type */

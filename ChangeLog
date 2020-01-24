@@ -1,3 +1,158 @@
+Mon Jan 16 14:30:00 PDT 2017 Phil Nelson <philnelson@acm.org>
+	* Updated copyright to 2017.
+
+Sun Oct 23 16:38:05 PDT 2016 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c: dc_system() already eats up to (and including)
+	  a trailing newline, so don't fall-through in dc_evalstr()'s
+	  DC_SYSTEM case to DC_COMMENT's skip_past_eol() call,
+	  as that would unexpectedly require eating a second newline.
+	  Thanks to David José for noticing and reporting the bug.
+
+Thu Oct 20 03:11:43 PDT 2016 Ken Pizzini <ken@gnu.org>
+	* doc/dc.texi: fix some typos.
+
+Mon Oct 17 00:28:50 PDT 2016 2016 Ken Pizzini <ken@gnu.org>
+	* doc/dc.1, doc/dc.texi: document the new default-to-zero
+	  of the 'l' command.
+
+Mon Oct 17 00:02:11 PDT 2016 Ken Pizzini <ken@gnu.org>
+	* doc/dc.1, doc/dc.texi: be more careful in specifying how
+	  the precision of the result of the "v" (square root)
+	  command is determined.
+	  Thanks to David José for pointing out that the old text
+	  underspecified this.
+
+Sun Oct 16 23:43:05 PDT 2016 Ken Pizzini <ken@gnu.org>
+	* dc/stack.d: return a 0 (zero value; instead of reporting an error)
+	  for the "l" command when the named register stack is empty.
+	  Thanks to David José for the suggestion.  (This is a useful default
+	  value, and make GNU dc more compatable with BSD dc and Bell Labs
+	  version 7 dc.)
+
+Wed Sep 28 13:24:50 PDT 2016 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c, doc/dc.1, doc/dc.texi: update copyright dates
+
+Sat Sep 24 16:04:01 PDT 2016 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c, dc/eval.c: yesterday's fix for 'Q' created a
+	  new bug for the 'q' command; this fresh (and simpler!)
+	  fix does the right thing.  (Thanks again to Paul Rayner.)
+
+Fri Sep 23 22:49:17 PDT 2016 Ken Pizzini <ken@gnu.org>
+	* dc/dc.c: don't prematurely exit from stack-unwinding 'Q'
+	  command
+	* dc/eval.c: ensure that DC_FAIL API value does not
+	  collide with any internal dc_status code
+	* doc/dc.1, doc/dc.texi: clarify that 'Z' command reports
+	  on digits in decimal representation in number (as opposed
+	  to ambiguous, perhaps "o"base, digits).
+	* (Bugs reported by Paul Rayner; thanks.)
+
+Mon Feb 29 15:56:00 PST 2016 Phil Nelson <philnelson@acm.org>
+	* Makefile.am, bc/Makefile.am: update to not include
+	libmath.h in distribution.
+	* configure.ac: update copyright with 2016
+
+Mon Feb 29 13:06:00 PST 2016 Phil Nelson <philnelson@acm.org>
+	* bc/Makefile: Add $(LIBBC) as dependency to fbc so
+	libmath.h gets correctly built.  sbc also needed it.
+
+Mon Feb 29 12:05:00 PST 2016 Phil Nelson <philnelson@acm.org>
+	* bc/util.c, bc.y: Fix two memory leaks submitted to
+	Gentoo by Bruce Dubbs.
+
+Tue Jan 19 22:10:10 PST 2016 Phil Nelson <philnelson@acm.org>
+	* bc/{execute.c, load.c, main.c, proto.h, scan.l, storage.c, util.c},
+	  lib/number.c: Update copyrights, remove old style function
+	declarations, remove _PROTOTYPE macros, update to GPL V3.
+	Various other code cleanups.
+
+Mon Jan 11 14:01:32 PST 2016 Ken Pizzini <ken@gnu.org>
+	* doc/dc.texi: fix typo (reported by Avinash Sonawane)
+
+Mon May 11 16:40:31 PDT 2015 Ken Pizzini <ken@gnu.org>
+	* dc/stack.c: catch the case of an empty value on top of
+	  a register stack (i.e., the stack entry is first created by
+	  an array store on a previously unallocated register)
+	  as a normal run-time error, rather than an abort() condition.
+	  (Bug reported by Hanno Böck, who found it during fuzz testing.)
+
+Mon Jan 26 22:30:00 PST 2015 Phil Nelson <philnelson@acm.org>
+	* bc/execute.c, load.c, scan.l, storage.c:  Extend input
+	  base to allow for base 36 with Z being the largest
+	  input digit.  Now, ZZZZZ will be the largest 5 digit
+	  number given the allowable bases.
+
+Mon Jan 26 21:34:00 PST 2015 Phil Nelson <philnelson@acm.org>
+	* various: updated copyright on all GPL licence comments.
+
+Mon Jan 19 00:03:05 PST 2015 Ken Pizzini <ken@gnu.org>
+	* News: brought up-to-date for dc-1.07 release
+	* README: bump relase number
+	* bootstrap.sh: let the autotools give us as much guidance as they can
+	* configure.ac: modernize, based on autotools' -Wall suggestions;
+	  update copyright years; GPL version 3; use URL to get copy of GPL,
+	  instead of snail-mail address; version bump (for both dc and bc);
+	  simplify the libedit/readline/flex cross-check logic
+	* dc/eval.c: update copyright years
+
+Thu Nov 27 22:17:17 PST 2014 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c: dc_evalstr() incorrectly used len-1, to omit counting the
+	  closing ']', unconditionally, even when string parsing terminated
+	  prematurely (end-of-string reached before closing ']' was found).
+	  This is wrong in general, and painfully wrong when len==0.
+	  (Bug reported by Hanno Böck, who found it during fuzz testing.)
+
+Fri Oct 31 13:50:18 PDT 2014 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c: dc_evalstr() was inappropriately/prematurely returning
+	  when the top-of-stack was a number.  (Bug reported by Saito Takaaki.)
+
+Sun Sep  7 15:20:29 PDT 2014 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c: the '!' command was incorrectly interacting with stdin
+	  rather than fp (the current input stream) when reading the
+	  shell command to be executed.  (Bug reported by Dario Niedermann.)
+
+Sat Oct 26 14:54:37 PDT 2013 Ken Pizzini <ken@gnu.org>
+	* doc/dc.1, doc/dc.texi: Updated copyright dates.
+
+Sat Oct 26 14:54:37 PDT 2013 Ken Pizzini <ken@gnu.org>
+	* doc/dc.1, doc/dc.texi: Documented the "R" (rotate stack) command.
+
+Sat Oct 26 14:39:10 PDT 2013 Ken Pizzini <ken@gnu.org>
+	* dc/dc-proto.h, dc/dc.c, dc/eval.c, dc/misc.c, dc/numeric.c,
+	  dc/stack.c, dc/string.c:
+	  Explicitly flush output, instead of requesting line buffering,
+	  as the user may be emitting a prompt (without a trailing newline)
+	  within an inferior process.  Also, clean-up/simplify related code.
+
+Fri Jun 29 13:14:18 PDT 2012 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c dc/stack.c, dc/dc-proto.h:
+	  Implement 'R', general stack rotation command
+
+Thu Mar  7 21:55:47 PST 2013 Phil Nelson <phil@cs.wwu.edu>
+	* configure.ac, bc/Makefile.am, dc/Makefile.am, lib/Makefile.am:
+	  Update automake definitions for newer versions of automake.
+	  Tested with version 1.13.1.
+
+Tue Nov  2 11:09:00 2010 Phil Nelson <phil@cs.wwu.edu>
+	* bc/{bc.y, execute.c, load.c, main.c, proto.h, scan.l,
+	  util.c}:  Add a bc_exit() routine that resets the editline
+	  state in one place to exit.  Removed editline state reset
+	  in other places.
+
+Sun Mar 21 11:42:16 2010 Ken Pizzini <ken@gnu.org>
+	* dc/eval.c: take a more nuanced approach to handling SIGINT
+
+Thu May 22 17:28:07 2008 Ken Pizzini <ken@gnu.org>
+	* All: update copyright statements and license statements:
+	  the code is now released under GPL-3, and documentation
+	  under FDL-1.2.
+	* configure.in, Makefile.am, bootstrap.sh; h/* lib/* gnulib/* m4/*:
+	  import portability code via gnulib-tools
+	* bc/bc.y, bc/sbc.y, bc/execute.c, bc/load.c, bc/main.c, bc/proto.h,
+	  bc/scan.l, bc/util.c: detect, report (if possible), and exit with
+	  error if any I/O errors are encountered
+	* doc/dc.texi: clean-up preamble (using more modern texinfo macros)
+
 Mon Sep  4 19:27:49 2006 Ken Pizzini <ken@gnu.org>
 	* configure.in: re-factor how version numbers are handled; add errno.h
 	  and strtol() checks; add doc-texi-ver.incl output
@@ -134,7 +289,7 @@ Tue Mar 28 12:09:38 2006 Ken Pizzini <ken@gnu.org>
 Wed Mar 15 9:50:00 2006 Phil Nelson <phil@cs.wwu.edu>
 	* lib/getopt.c:  Added a define to disable/enable
 	  gettext support.  May need to be deleted later
-	  when gettext is fully supported.  
+	  when gettext is fully supported. 
 
 Mon Mar 13 13:57:00 2006 Phil Nelson <phil@cs.wwu.edu>
 	* bc/bc.y: Remove second call to lookup() in a rule.
@@ -257,7 +412,7 @@ Wed May 23 08:40:00 2001  Phil Nelson  <phil@cs.wwu.edu>
 
 	* Makefile.am, */Makefile.am, configure.in: Add gcc specific
 	  flags only if using gcc.
-	* bc/{bc.y,sbc.y,bcdefs.h,const.h,execute.c,global.[ch],proto.h, 
+	* bc/{bc.y,sbc.y,bcdefs.h,const.h,execute.c,global.[ch],proto.h,
 	      main.c,util.c}:  Removal of buffer overflow, new extern
 	  and initialization code. New dynamic buffer manipulation.
 	* bc/load.c: correct char extraction.
@@ -310,7 +465,7 @@ Wed Sep 13 11:40:24 2000  Phil Nelson  <phil@cs.wwu.edu>
 	* bc/main.c: add --interactive to long options.
 	  bc/bc.1: add -i/--interactive to doc.
 	  MANY: Update FSF address and Phil's e-mail.
-	
+
 Tue Sep 12 13:58:16 2000  Phil Nelson  <phil@cs.wwu.edu>
 
 	* NEWS: update for recent changes.
@@ -364,7 +519,7 @@ Thu Jul 13 18:13:00 2000 Phil Nelson  <phil@cs.wwu.edu>
 
 Tue Jun 20 22:52:10 2000  Phil Nelson  <phil@cs.wwu.edu>
 
-	* bc/bcdefs.h: Include <readline/history.h> to quiet warnings. 
+	* bc/bcdefs.h: Include <readline/history.h> to quiet warnings.
 
 	* configure.in: make --with-readline and --with-libedit work correctly.
 
@@ -398,8 +553,8 @@ Sun 2000-05-07  Phil Nelson  <phil@cs.wwu.edu>
 	  -Wall and for name changes in lib/number.c.  (Added bc_ to several
 	  routine.  Updated copyright notice.)
 
-	* h/number.h, lib/number.c:  Now comes from bcmath library which is  
-	  distributed in a different place. 
+	* h/number.h, lib/number.c:  Now comes from bcmath library which is
+	  distributed in a different place.
 
 Wed Mar 29 17:47:34 2000  Phil Nelson  <phil@cs.wwu.edu>
 
@@ -416,7 +571,7 @@ Wed Mar 29 10:20:18 2000  Phil Nelson  <phil@cs.wwu.edu>
 
 Tue Mar 28 13:52:35 2000  Phil Nelson  <phil@cs.wwu.edu>
 
-	* lib/number.c, h/number.h: Moved definitions so 
+	* lib/number.c, h/number.h: Moved definitions so
 	  number.c/number.h is a stand-alone "library".
 	  Changed definition of out_num to not reference a global.
 	* lib/testmul.c: updated #includes for number.h changes.
@@ -522,7 +677,7 @@ Fri Apr 17 10:40:59 1998  Phil Nelson  <phil@cs.wwu.edu>
 
 Thu Apr 16 16:49:22 1998  Phil Nelson  <phil@cs.wwu.edu>
 
-	* bc/configure.in: Tweeking of AM_PROG_LEX and associated 
+	* bc/configure.in: Tweeking of AM_PROG_LEX and associated
 	  special case goo for solaris.
 
 Sat Mar 28 21:43:18 1998  Phil Nelson  <phil@cs.wwu.edu>
@@ -707,7 +862,7 @@ Fri Apr 11 16:14:42 1997  Phil Nelson  <phil@cs.wwu.edu>
 	  bc/Makefile.am bc/bc.y dc/Makefile.am: Changes to accomodate
 	  automake-1.1n (pre-release version of automake 1.2).
 
-	* bc/bc.y bc/sbc.y: Changes to make sure tokens are numbered the 
+	* bc/bc.y bc/sbc.y: Changes to make sure tokens are numbered the
 	  same in bc/bc.h and bc/sbc.h.
 
 	* bc/scan.l: Changes for automake's naming convention.
@@ -725,7 +880,7 @@ Thu Apr 10 14:42:55 1997  Phil Nelson  <phil@cs.wwu.edu>
 
 	* h/version.h: Changed bc version to 1.04.
 
-	* lib/number.c: Changed copyright comment and added 1997 to 
+	* lib/number.c: Changed copyright comment and added 1997 to
 	  copyright years.
 
 	* lib/vfprintf.c: Noted that this was only for minix.
@@ -929,7 +1084,7 @@ Wed Jun 28 19:03:51 1995  Phil Nelson  <phil@cs.wwu.edu>
 Wed Jun 28 01:33:07 1995  Phil Nelson  <phil@cs.wwu.edu>
 
 	* acconfig.h, bc.y, scan.l, storage.c, util.c, configure.in:
-	  Improved readline support with a new pseudo variable "history" 
+	  Improved readline support with a new pseudo variable "history"
 	  that controls the number of history lines available.
 	  Also removed "optional" history.
 
@@ -1338,4 +1493,3 @@ Tue Oct 29 10:06:32 1991  Phil Nelson  (phil at cs.wwu.edu)
 	* Called current version 1.00.
 
 	* Submitted GNU bc-1.00 to comp.sources.reviewed
-

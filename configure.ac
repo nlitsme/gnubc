@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Copyright (C) 2006 Free Software Foundation, Inc.
+dnl Copyright (C) 2006, 2016 Free Software Foundation, Inc.
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
-dnl the Free Software Foundation; either version 2, or (at your option)
+dnl the Free Software Foundation; either version 3, or (at your option)
 dnl any later version.
 dnl
 dnl This program is distributed in the hope that it will be useful,
@@ -13,38 +13,38 @@ dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 dnl GNU General Public License for more details.
 dnl
 dnl You should have received a copy of the GNU General Public License
-dnl along with this program; if not, write to the Free Software Foundation,
-dnl Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+> dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-m4_define([bc_version], 1.06.95)
-m4_define([dc_version], 1.3.95)
+m4_define([bc_version], 1.07)
+m4_define([dc_version], 1.4)
 
-AC_INIT(bc, bc_version)
+AC_INIT([bc],[bc_version])
 AC_CONFIG_SRCDIR(doc/bc.1)
 AM_INIT_AUTOMAKE([dist-bzip2])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 AC_DEFINE([DC_VERSION], "dc_version",
 	  [Define the dc version number.])
 
 AC_DEFINE([BC_COPYRIGHT],
-	  ["Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006 Free Software Foundation, Inc."],
+	  ["Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006, 2008, 2012-2017 Free Software Foundation, Inc."],
 	  [Define the bc copyright line.])
 
 AC_DEFINE([DC_COPYRIGHT], 
-          ["Copyright 1994, 1997, 1998, 2000, 2001, 2004, 2005, 2006 Free Software Foundation, Inc."],
+          ["Copyright 1994, 1997, 1998, 2000, 2001, 2004, 2005, 2006, 2016 Free Software Foundation, Inc."],
 	  [Define the dc copyright line.])
 
 AC_PROG_CC
-AC_MINIX
+AC_USE_SYSTEM_EXTENSIONS
 
 AM_PROG_LEX
+AM_PROG_AR
 AC_PROG_YACC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 
-AC_CHECK_HEADERS(stdarg.h stddef.h stdlib.h string.h errno.h limits.h unistd.h lib.h)
+AC_CHECK_HEADERS_ONCE(stdarg.h stddef.h stdlib.h string.h errno.h limits.h unistd.h lib.h)
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_CHECK_TYPE(ptrdiff_t, size_t)
@@ -53,8 +53,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(isgraph setvbuf fstat strtol)
 
 AC_ARG_WITH(pkg,
-   AC_HELP_STRING([--with-pkg],
-      [use software installed in /usr/pkg tree]),
+   AS_HELP_STRING([--with-pkg],[use software installed in /usr/pkg tree]),
    [case $withval in no) ;;
       *) CPPFLAGS="$CPPFLAGS -I/usr/pkg/include"
 	 LDFLAGS="$LDFLAGS -L/usr/pkg/lib"
@@ -63,8 +62,7 @@ AC_ARG_WITH(pkg,
 
 bcle=n
 AC_ARG_WITH(libedit,
-   AC_HELP_STRING([--with-libedit],
-      [support fancy BSD command input editing]),
+   AS_HELP_STRING([--with-libedit],[support fancy BSD command input editing]),
    [case $withval in no) ;;
       *) LDSAVE=$LDFLAGS
 	 AC_CHECK_LIB(termcap,tgetent,TERMLIB=-ltermcap)
@@ -83,8 +81,7 @@ AC_ARG_WITH(libedit,
  
 bcrl=n
 AC_ARG_WITH(readline,
-   AC_HELP_STRING([--with-readline],
-      [support fancy command input editing]),
+   AS_HELP_STRING([--with-readline],[support fancy command input editing]),
    [case $withval in no) ;;
       *) LDSAVE=$LDFLAGS
 	 AC_CHECK_LIB(ncurses,tparm,TERMLIB=-lncurses,
@@ -106,10 +103,9 @@ case $bcle-$bcrl-$LEX in
    y-y-*)
 	AC_MSG_ERROR(Can not use both readline and libedit.  Aborting.) ;;
    ?-?-flex)
-	LEX="flex -I -8"
-	case $bcrl in
-	  n) AC_MSG_WARN(readline works only with flex.) ;;
-	esac ;;
+	LEX="flex -I -8" ;;
+   ?-y-*)
+	AC_MSG_ERROR(readline works only with flex.) ;;
 esac
 
 case $LEX-`uname -s` in
@@ -124,4 +120,9 @@ esac
 AC_SUBST(READLINELIB)
 AC_SUBST(BC_VERSION, bc_version)
 AC_SUBST(DC_VERSION, dc_version)
-AC_OUTPUT(Makefile bc/Makefile dc/Makefile doc/Makefile doc/texi-ver.incl lib/Makefile)
+AC_CONFIG_FILES(
+    Makefile bc/Makefile dc/Makefile
+    lib/Makefile
+    doc/Makefile doc/texi-ver.incl
+  )
+AC_OUTPUT

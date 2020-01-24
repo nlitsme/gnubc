@@ -1,12 +1,12 @@
 /*
  * evaluate the dc language, from a FILE* or a string
  *
- * Copyright (C) 1994, 1997, 1998, 2000, 2003, 2005, 2006 Free Software
- * Foundation, Inc.
+ * Copyright (C) 1994, 1997, 1998, 2000, 2003, 2005, 2006, 2008, 2010, 2012-2016
+ * Free Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
+ * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,11 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, you can either send email to this
- * program's author (see below) or write to:
- *   The Free Software Foundation, Inc.
- *   51 Franklin Street, Fifth Floor
- *   Boston, MA 02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 /* This is the only module which knows about the dc input language */
@@ -39,6 +36,9 @@
 #endif
 #endif
 #include <signal.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include "dc.h"
 #include "dc-proto.h"
 
@@ -356,16 +356,8 @@ between 2 and %d (inclusive)\n",
 		unwind_depth = 1; /* the return below is the first level of returns */
 		unwind_noexit = DC_FALSE;
 		return DC_QUIT;
-	case 'r':	/* rotate (swap) the top two elements on the stack
-				 */
-		if (dc_pop(&datum) == DC_SUCCESS){
-			dc_data datum2;
-			int two_status;
-			two_status = dc_pop(&datum2);
-			dc_push(datum);
-			if (two_status == DC_SUCCESS)
-				dc_push(datum2);
-		}
+	case 'r':	/* rotate (swap) the top two elements on the stack */
+		dc_stack_rotate(2);
 		break;
 	case 's':	/* "store" -- replace top of register stack named
 				 * by peekc with the value popped from the top
@@ -424,10 +416,11 @@ between 2 and %d (inclusive)\n",
 			if (datum.dc_type == DC_NUMBER)
 				dc_dump_num(datum.v.number, DC_TOSS);
 			else if (datum.dc_type == DC_STRING)
-				dc_out_str(datum.v.string, DC_NONL, DC_TOSS);
+				dc_out_str(datum.v.string, DC_TOSS);
 			else
 				dc_garbage("at top of stack", -1);
 		}
+		fflush(stdout);
 		break;
 	case 'Q':	/* quit out of top-of-stack nested evals;
 				 * pops value from stack;
@@ -446,7 +439,6 @@ between 2 and %d (inclusive)\n",
 					progname);
 		}
 		break;
-#if 0
 	case 'R':	/* pop a value off of the evaluation stack,;
 				 * rotate the top remaining stack elements that many
 				 * places forward (negative numbers mean rotate
@@ -459,7 +451,6 @@ between 2 and %d (inclusive)\n",
 			dc_stack_rotate(tmpint);
 		}
 		break;
-#endif
 	case 'S':	/* pop a value off of the evaluation stack
 				 * and push it onto the register stack named by peekc
 				 */
@@ -579,7 +570,6 @@ dc_evalstr DC_DECLARG((string))
 			if (dc_pop(&evalstr) == DC_SUCCESS){
 				if (evalstr.dc_type == DC_NUMBER){
 					dc_push(evalstr);
-					return DC_OKAY;
 				}else if (evalstr.dc_type != DC_STRING){
 					dc_garbage("at top of stack", -1);
 				}else if (s == end){
@@ -601,7 +591,8 @@ dc_evalstr DC_DECLARG((string))
 		case DC_QUIT:
 			if (unwind_depth >= tail_depth){
 				unwind_depth -= tail_depth;
-				return DC_QUIT;
+				if (unwind_noexit != DC_TRUE)
+					return DC_QUIT;
 			}
 			return DC_OKAY;
 
@@ -620,12 +611,12 @@ dc_evalstr DC_DECLARG((string))
 				else if (*p == '[')
 					++count;
 			len = (size_t) (p - s);
-			dc_push(dc_makestring(s, len-1));
+			dc_push(dc_makestring(s, (count==0 ? len-1 : len)));
 			s = p;
 			break;
 		case DC_SYSTEM:
 			s = dc_system(s);
-			/*@fallthrough@*/
+			break;
 		case DC_COMMENT:
 			s = skip_past_eol(s, end);
 			break;
@@ -659,9 +650,24 @@ dc_evalfile DC_DECLARG((fp))
 	int peekc;
 	int negcmp;
 	int next_negcmp = 0;
+	typedef void (*handler_t)(int);
+	handler_t sigint_handler = dc_trap_interrupt;
+	handler_t sigint_default = signal(SIGINT, SIG_IGN);
 	dc_data datum;
 
-	signal(SIGINT, dc_trap_interrupt);
+	/* Signals are awkward: we want to allow interactive users
+	 * to break out of long running macros, but otherwise we
+	 * prefer that SIGINT not be given any special treatment.
+	 * Sometimes "no special treatment" means to continue to
+	 * *ignore* the signal, but usually it means to kill the program.
+	 */
+	signal(SIGINT, sigint_default);
+#ifdef HAVE_UNISTD_H
+	/* don't trap SIGINT if we can tell that we are not reading from a tty */
+	if ( ! isatty(fileno(fp)) )
+		sigint_handler = sigint_default;
+#endif
+
 	stdin_lookahead = EOF;
 	for (c=getc(fp); c!=EOF; c=peekc){
 		peekc = getc(fp);
@@ -687,6 +693,7 @@ dc_evalfile DC_DECLARG((fp))
 		 */
 		negcmp = next_negcmp;
 		next_negcmp = 0;
+		signal(SIGINT, sigint_handler);
 		switch (dc_func(c, peekc, negcmp)){
 		case DC_OKAY:
 			if (stdin_lookahead != peekc  &&  fp == stdin)
@@ -713,7 +720,7 @@ dc_evalfile DC_DECLARG((fp))
 				}else if (datum.dc_type == DC_STRING){
 					if (dc_eval_and_free_str(&datum) == DC_QUIT){
 						if (unwind_noexit != DC_TRUE)
-							return DC_SUCCESS;
+							goto reset_and_exit_success;
 						fprintf(stderr, "%s: Q command argument exceeded \
 string execution depth\n", progname);
 					}
@@ -724,7 +731,7 @@ string execution depth\n", progname);
 			break;
 		case DC_QUIT:
 			if (unwind_noexit != DC_TRUE)
-				return DC_SUCCESS;
+				goto reset_and_exit_success;
 			fprintf(stderr,
 					"%s: Q command argument exceeded string execution depth\n",
 					progname);
@@ -750,8 +757,8 @@ string execution depth\n", progname);
 			break;
 		case DC_SYSTEM:
 			ungetc(peekc, fp);
-			datum = dc_readstring(stdin, '\n', '\n');
-			if (ferror(stdin))
+			datum = dc_readstring(fp, '\n', '\n');
+			if (ferror(fp))
 				goto error_fail;
 			(void)dc_system(dc_str2charp(datum.v.string));
 			dc_free_str(&datum.v.string);
@@ -771,8 +778,13 @@ string execution depth\n", progname);
 			if (ferror(fp))
 				goto error_fail;
 			fprintf(stderr, "%s: unexpected EOF\n", progname);
-			return DC_FAIL;
+			goto reset_and_exit_fail;
 		}
+
+		if (interrupt_seen)
+			fprintf(stderr, "\nInterrupt!\n");
+		interrupt_seen = 0;
+		signal(SIGINT, sigint_default);
 	}
 	if (!ferror(fp))
 		return DC_SUCCESS;
@@ -781,6 +793,12 @@ error_fail:
 	fprintf(stderr, "%s: ", progname);
 	perror("error reading input");
 	return DC_FAIL;
+reset_and_exit_fail:
+	signal(SIGINT, sigint_default);
+	return DC_FAIL;
+reset_and_exit_success:
+	signal(SIGINT, sigint_default);
+	return DC_SUCCESS;
 }
 
 

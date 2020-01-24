@@ -71,6 +71,12 @@ EXTERN int quiet  INIT(FALSE);
 /* The list of file names to process. */
 EXTERN file_node *file_names  INIT(NULL);
 
+/* Is this run a command line expression eval? */
+EXTERN char eval_expression;
+
+/* The commandline specified expression. */
+EXTERN char *cmdline_expression;
+
 /* The name of the current file being processed. */
 EXTERN char *file_name;
 

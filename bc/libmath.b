@@ -334,3 +334,35 @@ define j(n,x) {
     v += e;
   }
 }
+
+define gcd(a,b) {
+  auto px, x, py, y, q, r;
+  px = 1; x = 0;
+  py = 0 ; y = 1;
+  while (b) {
+    r = a % b;
+    q = (a-r)/b;
+
+    tx = x; x = px - q*x; px = tx;
+    ty = y; y = py - q*y; py = ty;
+    
+    a = b;  b = r;
+  }
+  return a;
+}
+
+define modinv(a,b) {
+  auto px, x, py, y, q, r;
+  px = 1; x = 0;
+  py = 0 ; y = 1;
+  while (b) {
+    r = a % b;
+    q = (a-r)/b;
+
+    tx = x; x = px - q*x; px = tx;
+    ty = y; y = py - q*y; py = ty;
+    
+    a = b;  b = r;
+  }
+  return px;
+}

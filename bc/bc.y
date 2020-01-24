@@ -76,7 +76,7 @@ int cur_func = -1;
    l) void functions.
 */
 
-%token <i_value> ENDOFLINE AND OR NOT
+%token <i_value> ENDOFLINE AND OR NOT BITAND BITOR BITXOR
 %token <s_value> STRING NAME NUMBER
 /*     '-', '+' are tokens themselves		*/
 /*     '=', '+=',  '-=', '*=', '/=', '%=', '^=' */
@@ -94,7 +94,7 @@ int cur_func = -1;
 /*     'warranty', 'halt', 'last', 'continue', 'print', 'limits'   */
 %token <i_value> Warranty  Halt  Last  Continue  Print  Limits
 /*     'history', 'void' */
-%token <i_value> UNARY_MINUS HistoryVar Void
+%token <i_value> UNARY_MINUS HistoryVar Void Pi
 
 
 /* Types of all other things. */
@@ -623,6 +623,26 @@ expression		:  named_expression ASSIGN_OP
 			      generate ("^");
 			      $$ = ($1 | $3) & ~EX_PAREN;
 			    }
+			| expression BITXOR expression
+			    {
+			      generate ("~");
+			      $$ = ($1 | $3) & ~4;
+			    }
+			| expression BITAND expression
+			    {
+			      generate ("a");
+			      $$ = ($1 | $3) & ~4;
+			    }
+			| expression BITOR expression
+			    {
+			      generate ("o");
+			      $$ = ($1 | $3) & ~4;
+			    }
+			| '~' expression  %prec UNARY_MINUS
+			    {
+			      generate ("z");
+			      $$ = $2 & ~4;
+			    }
 			| '-' expression  %prec UNARY_MINUS
 			    {
 			      if ($2 & EX_VOID)
@@ -649,10 +669,40 @@ expression		:  named_expression ASSIGN_OP
 				generate ("1");
 			      else
 				{
+				  // check for E notation: 1.23e-4
+				  char *e = strchr($1, 'e');
+				  if (e)
+				    *e = 0;
 				  generate ("K");
 				  generate ($1);
 				  generate (":");
+				  if (e) {
+				    // multiply number by 10^exponent
+				    int isneg = 0;
+				    e++;
+				    if (*e=='+')  // skip '+'
+				      e++;
+				    else if (*e=='-')  {
+				      e++;
+				      isneg = 1;
+				    }
+				    // push '10'
+				    generate ("K");
+				    generate ("10");
+				    generate (":");
+				    // push exponent
+				    generate ("K");
+				    generate (e);
+				    generate (":");
+				
+				    // optionally negate number
+				    if (isneg)
+				      generate ("n");
+				    // exponent and multiply
+				    generate ("^");
+				    generate ("*");
 				}
+			      }
 			      free ($1);
 			    }
 			| '(' expression ')'
@@ -755,6 +805,15 @@ expression		:  named_expression ASSIGN_OP
 			      ct_warn ("random function");
 			      generate ("cX");
 			      $$ = EX_REG;
+			    }
+			| Pi
+			    {
+			      int fn;
+			      $$ = EX_REG;
+			      fn = lookup (strdup("a"),FUNCT);
+			      // calculate 4 * arctan(1)
+			      sprintf (genstr, "1C%d,0:K4:*", fn);
+			      generate (genstr);
 			    }
 			;
 named_expression	: NAME

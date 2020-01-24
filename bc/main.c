@@ -53,6 +53,7 @@ static struct option long_options[] =
   {"compile",     0, &compile_only, TRUE},
   {"help",        0, 0,             'h'},
   {"interactive", 0, 0,             'i'},
+  {"expression",  0, 0,             'e'},
   {"mathlib",     0, &use_math,     TRUE},
   {"quiet",       0, &quiet,        TRUE},
   {"standard",    0, &std_only,     TRUE},
@@ -66,8 +67,10 @@ static struct option long_options[] =
 static void
 usage (const char *progname)
 {
-  printf ("usage: %s [options] [file ...]\n%s%s%s%s%s%s%s", progname,
+  printf ("usage: %s [options] [file ...]\n%s%s%s%s%s%s%s%s%s", progname,
           "  -h  --help         print this usage and exit\n",
+	  "  -e  --expression   eval commandline expression\n",
+	  "  -c  --compile      output compiled dc script\n",
 	  "  -i  --interactive  force interactive mode\n",
 	  "  -l  --mathlib      use the predefined math routines\n",
 	  "  -q  --quiet        don't print initial banner\n",
@@ -83,6 +86,8 @@ parse_args (int argc, char **argv)
   int optch;
   int long_index;
   file_node *temp;
+  int i;
+  int size;
 
   /* Force getopt to initialize.  Depends on GNU getopt. */
   optind = 0;
@@ -90,7 +95,7 @@ parse_args (int argc, char **argv)
   /* Parse the command line */
   while (1)
     {
-      optch = getopt_long (argc, argv, "chilqswv", long_options, &long_index);
+      optch = getopt_long (argc, argv, "chilqswve", long_options, &long_index);
 
       if (optch == EOF)  /* End of arguments. */
 	break;
@@ -111,6 +116,11 @@ parse_args (int argc, char **argv)
 
 	case 'i':  /* force interactive */
 	  interactive = TRUE;
+	  break;
+
+	case 'e':  /* commandline expression */
+	  eval_expression = TRUE;
+	  interactive = FALSE;
 	  break;
 
 	case 'l':  /* math lib */
@@ -143,6 +153,22 @@ parse_args (int argc, char **argv)
 #ifdef QUIET
   quiet = TRUE;
 #endif
+
+  if (eval_expression) {
+    size= argc+1;
+    for (i=optind ; i<argc ; i++)
+      size += strlen(argv[i]);
+    cmdline_expression= bc_malloc(size);
+    cmdline_expression[0]=0;
+    for (i=optind ; i<argc ; i++) {
+      if (i)
+        strcat(cmdline_expression, " ");
+      strcat(cmdline_expression, argv[i]);
+    }
+    strcat(cmdline_expression, "\n");
+
+    return;
+  }
 
   /* Add file names to a list of files to process. */
   while (optind < argc)

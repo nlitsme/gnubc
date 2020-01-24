@@ -509,6 +509,262 @@ _bc_do_sub (bc_num n1, bc_num n2, int scale_min)
   return diff;
 }
 
+static bc_num
+convert_hex_to_num(bc_num hnum)
+{
+  bc_num num;
+  bc_num int_part;
+  bc_num frac_part;
+  bc_num digit;
+  bc_num divisor;
+  bc_num base;
+  bc_num temp;
+  int i;
+
+  bc_init_num (&num);
+  bc_init_num (&base);
+  bc_init_num (&digit);
+  bc_init_num (&temp);
+  bc_init_num (&int_part);
+  bc_init_num (&frac_part);
+  bc_init_num (&divisor);
+
+  bc_int2num (&base, 16);
+  for (i=0 ; i<hnum->n_len ; i++) {
+    bc_multiply (int_part, base, &temp, 0);
+    bc_int2num (&digit, hnum->n_value[i] & 0xf);
+    bc_add (temp, digit, &int_part, 0);
+  }
+  divisor= bc_copy_num(_one_);
+  for (i=0 ; i<hnum->n_scale ; i++) {
+    bc_multiply (frac_part, base, &temp, 0);
+    bc_int2num (&digit, hnum->n_value[hnum->n_len+i] & 0xf);
+    bc_add (temp, digit, &frac_part, 0);
+    bc_multiply (divisor, base, &divisor, 0);
+  }
+  bc_divide (frac_part, divisor, &frac_part, hnum->n_scale);
+  bc_add (frac_part, int_part, &num, hnum->n_scale);
+
+  bc_free_num (&temp);
+  bc_free_num (&base);
+  bc_free_num (&digit);
+  bc_free_num (&int_part);
+  bc_free_num (&frac_part);
+  bc_free_num (&divisor);
+  return num;
+}
+
+static bc_num
+convert_num_to_hex(bc_num num)
+{
+  bc_num hnum= bc_new_num((num->n_len*100)/121+1, num->n_scale);
+
+  bc_num int_part;
+  bc_num frac_part;
+  bc_num base;
+  bc_num cur_dig;
+  int i;
+  int fdigit;
+
+  bc_init_num (&int_part);
+  bc_init_num (&frac_part);
+  bc_init_num (&cur_dig);
+  bc_init_num (&base);
+
+  bc_divide (num, _one_, &int_part, 0);
+  bc_sub (num, int_part, &frac_part, 0);
+
+  bc_int2num (&base, 16);
+
+  i= 0;
+  while (!bc_is_zero (int_part)) {
+    bc_modulo (int_part, base, &cur_dig, 0);
+    hnum->n_value[hnum->n_len-i-1]= bc_num2long (cur_dig);
+    bc_divide (int_part, base, &int_part, 0);
+
+    i++;
+  }
+  i= -1;
+  while (i >= -hnum->n_scale) {
+    bc_multiply (frac_part, base, &frac_part, num->n_scale);
+    fdigit = bc_num2long (frac_part);
+    bc_int2num (&int_part, fdigit);
+    bc_sub (frac_part, int_part, &frac_part, 0);
+
+    hnum->n_value[hnum->n_len-i-1]= fdigit;
+
+    i--;
+  }
+
+  return hnum;
+}
+
+static bc_num
+_bc_do_bitnot (num, scale_min)
+     bc_num num;
+     int scale_min;
+{
+  bc_num not;
+  bc_num hexval;
+  int i;
+
+  hexval= convert_num_to_hex(num);
+
+  for (i=hexval->n_len-1 ; i>= -hexval->n_scale ; i--)
+    hexval->n_value[hexval->n_len-1-i] = hexval->n_value[hexval->n_len-1-i] ^ 0xf;
+
+  not= convert_hex_to_num(hexval);
+
+  bc_free_num (&hexval);
+
+  /* Adjust xor xor return. */
+  _bc_rm_leading_zeros (not);
+  return not;
+}
+
+static bc_num
+_bc_do_bitxor (n1, n2, scale_min)
+     bc_num n1, n2;
+     int scale_min;
+{
+  bc_num xor;
+  int i;
+
+  bc_num hexn1;
+  bc_num hexn2;
+  bc_num hexxor;
+
+  hexn1= convert_num_to_hex(n1);
+  hexn2= convert_num_to_hex(n2);
+  hexxor= bc_new_num(MAX(hexn1->n_len, hexn2->n_len), MAX(hexn1->n_scale, hexn2->n_scale));
+
+
+  // i is the position ( i==0 <-> position base^0 )
+  //   positive values len-1 .. 0   for integer 
+  //   negative values -1 .. -scale   for fractional
+
+  // copy longer part of n1 or n2
+  if ( hexn1->n_len > hexn2->n_len ) {
+    for (i=hexn1->n_len-1 ; i>=hexn2->n_len ; i--)
+      hexxor->n_value[hexxor->n_len-i-1] = hexn1->n_value[hexn1->n_len-i-1];
+  }
+  else if ( hexn2->n_len > hexn1->n_len ) {
+    for (i=hexn2->n_len-1 ; i>=hexn1->n_len ; i--)
+      hexxor->n_value[hexxor->n_len-i-1] = hexn2->n_value[hexn2->n_len-i-1];
+  }
+
+  // copy length+scale part
+  for (i=MIN(hexn1->n_len, hexn2->n_len)-1 ; i >= -MIN(hexn1->n_scale, hexn2->n_scale) ; i--)
+    hexxor->n_value[hexxor->n_len-i-1] = hexn1->n_value[hexn1->n_len-i-1] ^ hexn2->n_value[hexn2->n_len-i-1];
+
+  if ( hexn1->n_scale > hexn2->n_scale ) {
+    for (i=-hexn2->n_scale-1 ; i >= -hexn1->n_scale ; i--)
+      hexxor->n_value[hexxor->n_len-i-1] = hexn1->n_value[hexn1->n_len-i-1];
+  }
+  else if ( hexn2->n_scale > hexn1->n_scale ) {
+    for (i=-hexn1->n_scale-1 ; i >= -hexn2->n_scale ; i--)
+      hexxor->n_value[hexxor->n_len-i-1] = hexn2->n_value[hexn2->n_len-i-1];
+  }
+
+
+  xor= convert_hex_to_num(hexxor);
+
+  bc_free_num (&hexn1);
+  bc_free_num (&hexn2);
+  bc_free_num (&hexxor);
+
+  /* Adjust xor xor return. */
+  _bc_rm_leading_zeros (xor);
+  return xor;
+}
+
+static bc_num
+_bc_do_bitor (n1, n2, scale_min)
+     bc_num n1, n2;
+     int scale_min;
+{
+  bc_num or;
+  int i;
+
+  bc_num hexn1;
+  bc_num hexn2;
+  bc_num hexor;
+
+  hexn1= convert_num_to_hex(n1);
+  hexn2= convert_num_to_hex(n2);
+  hexor= bc_new_num(MAX(hexn1->n_len, hexn2->n_len), MAX(hexn1->n_scale, hexn2->n_scale));
+
+  // i is the position ( i==0 <-> position base^0 )
+  //   positive values len-1 .. 0   for integer 
+  //   negative values -1 .. -scale   for fractional
+
+  // copy longer part of n1 or n2
+  if ( hexn1->n_len > hexn2->n_len ) {
+    for (i=hexn1->n_len-1 ; i>=hexn2->n_len ; i--)
+      hexor->n_value[hexor->n_len-i-1] = hexn1->n_value[hexn1->n_len-i-1];
+  }
+  else if ( hexn2->n_len > hexn1->n_len ) {
+    for (i=hexn2->n_len-1 ; i>=hexn1->n_len ; i--)
+      hexor->n_value[hexor->n_len-i-1] = hexn2->n_value[hexn2->n_len-i-1];
+  }
+
+  // copy length+scale part
+  for (i=MIN(hexn1->n_len, hexn2->n_len)-1 ; i >= -MIN(hexn1->n_scale, hexn2->n_scale) ; i--)
+    hexor->n_value[hexor->n_len-i-1] = hexn1->n_value[hexn1->n_len-i-1] | hexn2->n_value[hexn2->n_len-i-1];
+
+  if ( hexn1->n_scale > hexn2->n_scale ) {
+    for (i=-hexn2->n_scale-1 ; i >= -hexn1->n_scale ; i--)
+      hexor->n_value[hexor->n_len-i-1] = hexn1->n_value[hexn1->n_len-i-1];
+  }
+  else if ( hexn2->n_scale > hexn1->n_scale ) {
+    for (i=-hexn1->n_scale-1 ; i >= -hexn2->n_scale ; i--)
+      hexor->n_value[hexor->n_len-i-1] = hexn2->n_value[hexn2->n_len-i-1];
+  }
+
+
+  or= convert_hex_to_num(hexor);
+
+  bc_free_num (&hexn1);
+  bc_free_num (&hexn2);
+  bc_free_num (&hexor);
+
+  /* Adjust or or return. */
+  _bc_rm_leading_zeros (or);
+  return or;
+}
+
+static bc_num
+_bc_do_bitand (n1, n2, scale_min)
+     bc_num n1, n2;
+     int scale_min;
+{
+  bc_num and;
+
+  bc_num hexn1;
+  bc_num hexn2;
+  bc_num hexand;
+  int i;
+
+  hexn1= convert_num_to_hex(n1);
+  hexn2= convert_num_to_hex(n2);
+  hexand= bc_new_num(MIN(hexn1->n_len, hexn2->n_len), MIN(hexn1->n_scale, hexn2->n_scale));
+
+  // copy length+scale part
+  for (i=MIN(hexn1->n_len, hexn2->n_len)-1 ; i >= -MIN(hexn1->n_scale, hexn2->n_scale) ; i--)
+    hexand->n_value[hexand->n_len-i-1] = hexn1->n_value[hexn1->n_len-i-1] & hexn2->n_value[hexn2->n_len-i-1];
+
+
+  and= convert_hex_to_num(hexand);
+
+  bc_free_num (&hexn1);
+  bc_free_num (&hexn2);
+  bc_free_num (&hexand);
+
+  /* Adjust and and return. */
+  _bc_rm_leading_zeros (and);
+  return and;
+}
+
 
 /* Here is the full subtract routine that takes care of negative numbers.
    N2 is subtracted from N1 and the result placed in RESULT.  SCALE_MIN
@@ -602,6 +858,85 @@ bc_add (bc_num n1, bc_num n2, bc_num *result, int scale_min)
   bc_free_num (result);
   *result = sum;
 }
+
+void
+bc_bitnot (num, scale)
+     bc_num *num;
+     int scale;
+{
+  bc_num not = NULL;
+
+  not = _bc_do_bitnot (*num, scale);
+  bc_free_num (num);
+
+  *num= not;
+}
+
+void
+bc_bitxor (n1, n2, result, scale_min)
+     bc_num n1, n2, *result;
+     int scale_min;
+{
+  bc_num xor = NULL;
+
+  if (n1->n_sign == n2->n_sign)
+    {
+      xor = _bc_do_bitxor (n1, n2, scale_min);
+      xor->n_sign = n1->n_sign;
+    }
+  else
+    {
+      // not implemented
+    }
+
+  /* Clean up and return. */
+  bc_free_num (result);
+  *result = xor;
+}
+
+void
+bc_bitor (n1, n2, result, scale_min)
+     bc_num n1, n2, *result;
+     int scale_min;
+{
+  bc_num or = NULL;
+
+  if (n1->n_sign == n2->n_sign)
+    {
+      or = _bc_do_bitor (n1, n2, scale_min);
+      or->n_sign = n1->n_sign;
+    }
+  else
+    {
+      // not implemented
+    }
+
+  /* Clean up and return. */
+  bc_free_num (result);
+  *result = or;
+}
+void
+bc_bitand (n1, n2, result, scale_min)
+     bc_num n1, n2, *result;
+     int scale_min;
+{
+  bc_num and = NULL;
+
+  if (n1->n_sign == n2->n_sign)
+    {
+      and = _bc_do_bitand (n1, n2, scale_min);
+      and->n_sign = n1->n_sign;
+    }
+  else
+    {
+      // not implemented
+    }
+
+  /* Clean up and return. */
+  bc_free_num (result);
+  *result = and;
+}
+
 
 /* Recursive vs non-recursive multiply crossover ranges. */
 #if defined(MULDIGITS)
@@ -1100,21 +1435,25 @@ bc_divmod (bc_num num1, bc_num num2, bc_num *quot, bc_num *rem, int scale)
 {
   bc_num quotient = NULL;
   bc_num temp;
-  int rscale;
 
   /* Check for correct numbers. */
   if (bc_is_zero (num2)) return -1;
 
-  /* Calculate final scale. */
-  rscale = MAX (num1->n_scale, num2->n_scale+scale);
+  /* don't allow fractional numbers in modular arithmetic */
+  if (num1->n_scale != 0)
+      bc_rt_warn ("non-zero scale in dividend");
+  if (num2->n_scale != 0)
+      bc_rt_warn ("non-zero scale in divisor");
+
   bc_init_num(&temp);
 
   /* Calculate it. */
-  bc_divide (num1, num2, &temp, scale);
+  // use scale 0 so we get integer division
+  bc_divide (num1, num2, &temp, 0);
   if (quot)
     quotient = bc_copy_num (temp);
-  bc_multiply (temp, num2, &temp, rscale);
-  bc_sub (num1, temp, rem, rscale);
+  bc_multiply (temp, num2, &temp, 0);
+  bc_sub (num1, temp, rem, 0);
   bc_free_num (&temp);
 
   if (quot)
@@ -1478,6 +1817,20 @@ bc_out_num (bc_num num, int o_base, void (*out_char)(int), int leading_zero)
 	    digits = temp;
 	    bc_divide (int_part, base, &int_part, 0);
 	  }
+        switch(o_base)
+        {
+          case 8:
+            out_char('0');
+            break;
+          case 16:
+            out_char('0');
+            out_char('x');
+            break;
+          case 2:
+            out_char('0');
+            out_char('b');
+            break;
+        }
 
 	/* Print the digits on the stack. */
 	if (digits != NULL)

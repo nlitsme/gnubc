@@ -59,6 +59,8 @@ int yywrap (void);
 /* Have input call the following function. */
 #undef  YY_INPUT
 #define YY_INPUT(buf,result,max_size) \
+    if (cmdline_expression) cmdline_expression += result= string_read(cmdline_expression, buf, max_size); \
+    else \
 		bcel_input((char *)buf, (yy_size_t *)&result, max_size)
 
 /* Variables to help interface editline with bc. */
@@ -124,6 +126,8 @@ bcel_input (char *buf, yy_size_t  *result, int max)
 /* Have input call the following function. */
 #undef  YY_INPUT
 #define YY_INPUT(buf,result,max_size) \
+    if (cmdline_expression) cmdline_expression += result= string_read(cmdline_expression, buf, max_size); \
+    else \
 		rl_input((char *)buf, &result, max_size)
 
 /* Variables to help interface readline with bc. */
@@ -140,7 +144,7 @@ extern FILE *rl_instream;
 */
 
 static void
-rl_input (char *buf, int *result, int max)
+rl_input (char *buf, yy_size_t *result, int max)
 {
   if (yyin != rl_instream)
     {
@@ -196,14 +200,32 @@ rl_input (char *buf, int *result, int max)
    does nothing! */
 #undef  YY_INPUT
 #define YY_INPUT(buf,result,max_size) \
+    if (cmdline_expression) cmdline_expression += result= string_read(cmdline_expression, buf, max_size); \
+    else \
 	while ( (result = read( fileno(yyin), (char *) buf, max_size )) < 0 ) \
 	    if (errno != EINTR) \
 		YY_FATAL_ERROR( "read() in flex scanner failed" );
 #endif
 
+int string_read(char *src, char *dst, int max_size)
+{
+  int copied= 0;
+  while (*src && max_size>0) {
+    *dst++ = *src++;
+    copied++;
+    max_size--;
+  }
+  return copied;
+}
+
+
 %}
-DIGIT [0-9A-Z]
-LETTER [a-z]
+DIGIT    [0-9A-Z]
+HEXDIGIT [0-9A-Fa-f]
+BINDIGIT [01]
+OCTDIGIT [0-7]
+LETTER   [a-z]
+
 %s slcomment
 %%
 "#"		{
@@ -233,6 +255,7 @@ random return(Random);
 halt   return(Halt);
 last   return(Last);
 void   return(Void); 
+pi     return(Pi); 
 history {
 #if defined(READLINE) || defined(LIBEDIT)
 	  return(HistoryVar);
@@ -257,6 +280,9 @@ limits return(Limits);
 && { return(AND); }
 \|\| { return(OR); }
 "!" { return(NOT); }
+and { return(BITAND); }
+or { return(BITOR); }
+xor { return(BITXOR); }
 "*"|"/"|"%"|"&" { yylval.c_value = yytext[0]; return((int)yytext[0]); }
 "="|\+=|-=|\*=|\/=|%=|\^=  { yylval.c_value = yytext[0]; return(ASSIGN_OP); }
 =\+|=-|=\*|=\/|=%|=\^  { 
@@ -275,8 +301,8 @@ limits return(Limits);
 		       }
 ==|\<=|\>=|\!=|"<"|">" { yylval.s_value = strcopyof(yytext); return(REL_OP); }
 \+\+|-- { yylval.c_value = yytext[0]; return(INCR_DECR); }
-"\n" { line_no++; return(ENDOFLINE); }
-\\\n {  line_no++;  /* ignore a "quoted" newline */ }
+(\r\n|\n|\r) { line_no++; return(ENDOFLINE); }
+\\(\r\n|\n|\r) {  line_no++;  /* ignore a "quoted" newline */ }
 [ \t]+  { /* ignore spaces and tabs */ }
 "/*"  {
 	int c;
@@ -312,18 +338,21 @@ limits return(Limits);
 	      if (count != 2) yyerror ("NUL character in string.");
 	      return(STRING);
 	    }
-{DIGIT}({DIGIT}|\\\n)*("."({DIGIT}|\\\n)*)?|"."(\\\n)*{DIGIT}({DIGIT}|\\\n)* {
+
+   /* hexadecimal, binary, octal numbers with optional comma */
+   /* decimal numbers can start with a single dot */
+   /* decimal numbers can have an optional 'e' exponent suffix */
+0x{HEXDIGIT}({HEXDIGIT}|\\\n)*("."({HEXDIGIT}|\\\n)*)?|0{OCTDIGIT}({OCTDIGIT}|\\\n)*("."({OCTDIGIT}|\\\n)*)?|0b{BINDIGIT}({BINDIGIT}|\\\n)*("."({BINDIGIT}|\\\n)*)?|{DIGIT}({DIGIT}|\\\n)*("."({DIGIT}|\\\n)*)?([eE][+-]?{DIGIT}({DIGIT}|\\\n)*)?|"."(\\\n)*{DIGIT}({DIGIT}|\\\n)*([eE][+-]?{DIGIT}({DIGIT}|\\\n)*)?  {
 	      char *src, *dst;
 	      int len;
+	      int hasprefix = 0;
 	      /* remove a trailing decimal point. */
 	      len = strlen(yytext);
 	      if (yytext[len-1] == '.')
 	        yytext[len-1] = 0;
-	      /* remove leading zeros. */
 	      src = yytext;
 	      dst = yytext;
-	      while (*src == '0') src++;
-	      if (*src == 0) src--;
+	      hasprefix = (yytext[0]=='0') && (len > 1);
 	      /* Copy strings removing the newlines. */
 	      while (*src != 0)
 		{
@@ -336,9 +365,18 @@ limits return(Limits);
 		    {
 		      src++;
 		      ct_warn("Commas in numbers");
-		    }		    
-		  else
-		    *dst++ = *src++;
+		    }    
+		  else {
+		    // don't uppercase 0x or 0b prefix
+		    if (hasprefix && src < yytext+2)
+		      *dst++ = *src++;
+		    else if (src == yytext) // always copy first digit as-is
+		      *dst++ = *src++;
+		    else if (hasprefix) // uppercase hex digits
+		      *dst++ = toupper(*src++);
+		    else // lowercase 'e' suffix
+		      *dst++ = tolower(*src++);
+		  }
 	        }
 	      *dst = 0;
 	      yylval.s_value = strcopyof(yytext); 

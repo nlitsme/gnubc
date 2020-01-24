@@ -205,6 +205,7 @@ clear_func (int func)
   /* Set the pointer to the function. */
   f = &functions[func];
   f->f_defined = FALSE;
+  f->f_void = FALSE;
   /* XXX restore f_body to initial size??? */
   f->f_code_size = 0;
   if (f->f_autos != NULL)

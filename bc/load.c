@@ -150,6 +150,7 @@ load_code (const char *code)
   unsigned long  vaf_name;	/* variable, array or function number. */
   unsigned long  func;
   static program_counter save_adr;
+  int has_base = 0;
 
   /* Initialize. */
   str = code;
@@ -167,35 +168,55 @@ load_code (const char *code)
 	}
       else
 	if (load_const)
-	  {
-	    if (*str == '\n') 
+	{
+	  if (*str == '\n')
+	    {
 	      str++;
-	    else
-	      {
-		if (*str == ':')
-		  {
-		    load_const = FALSE;
-		    addbyte (*str++);
-		  }
-		else
-		  if (*str == '.')
-		    addbyte (*str++);
+	    }
+	  else if (*str == ':')
+	    {
+	      load_const = FALSE;
+	      addbyte (*str++);
+	    }
+	  else if (*str == '.')
+	    {
+	      addbyte (*str++);
+	    }
+	  else if (str==code && *str == '0')
+	    {
+	      has_base = 8;
+	      str++;
+	    }
+	  else if (str==code+1 && *str == 'x')
+	    {
+	      addbyte (*str++);
+	      has_base = 16;
+	    }
+	  else if (str==code+1 && *str == 'b')
+	    {
+	      addbyte (*str++);
+	      has_base = 2;
+	    }
+	  else if ('A' <= *str && *str <= 'Z')
+	    {
+	      if (*str > 'F' && (warn_not_std || std_only))
+		{
+		  if (std_only)
+		    yyerror ("Error in numeric constant");
 		  else
-                    {
-		      if (*str > 'F' && (warn_not_std || std_only))
-                        {
-                          if (std_only)
-                            yyerror ("Error in numeric constant");
-                          else
-                            ct_warn ("Non-standard base in numeric constant");
-                        } 
-		      if (*str >= 'A')
-		        addbyte (*str++ + 10 - 'A');
-		      else
-		        addbyte (*str++ - '0');
-                    }
-	      }
-	  }
+		    ct_warn ("Non-standard base in numeric constant");
+		} 
+	      addbyte (*str++ + 10 - 'A');
+	    }
+	  else if ('0' <= *str && *str <= '9')
+	    {
+	      if (str==code+1 && has_base == 8)
+		addbyte ('0');
+	      addbyte (*str++ - '0');
+	    }
+	  else
+	    addbyte (*str++);
+	}
 	else
 	  {
 	    switch (*str)

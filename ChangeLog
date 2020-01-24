@@ -1,3 +1,19 @@
+Thu Apr 21 13:45:18 2005  Willem Hengeveld <itsme@xs4all.nl>
+	* fixed some warnings and errors in bc.y when compiling with bison
+	* made to work with readline >= 4.3
+	* added bitwise 'and', 'or' and 'xor' operators
+	* added support for 0xhexval input, when 0xhexval constants
+	  are found, output is printed in both hex, and decimal.
+	* added '-e' option, to evaluate expression from commandline
+	* does not complain about input with CR's in it.
+	* added support for 0bBINARY 0OCTAL.
+	* hexadecimal numbers now can be lowercase.
+	* signs for hex numbers are printed in the right location.
+	* added support for 1.23e5  style numbers.
+	* fixed bug with uninitialized 'f_void' flag.
+	* added 'pi'
+	* added 'modinv' and 'gcd' functions.
+
 Fri Apr  7 15:14:43 PDT 2017  Phil Nelson <philnelson@acm.org>
 	* NEWS: update for 1.07.1 and 1.4.1
 	* FAQ: add a couple new FAQs.

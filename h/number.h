@@ -115,6 +115,11 @@ char bc_is_near_zero (bc_num num, int scale);
 
 char bc_is_neg (bc_num num);
 
+void bc_bitxor (bc_num n1, bc_num n2, bc_num *result, int scale_min);
+void bc_bitor (bc_num n1, bc_num n2, bc_num *result, int scale_min);
+void bc_bitand (bc_num n1, bc_num n2, bc_num *result, int scale_min);
+void bc_bitnot (bc_num *num, int scale);
+
 void bc_add (bc_num n1, bc_num n2, bc_num *result, int scale_min);
 
 void bc_sub (bc_num n1, bc_num n2, bc_num *result, int scale_min);

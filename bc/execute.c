@@ -34,6 +34,7 @@
 /* The SIGINT interrupt handling routine. */
 
 int had_sigint;
+int output_base;   /* flag set, when a hex, binary or octal value encountered */
 
 void
 stop_execution ( int sig )
@@ -50,6 +51,12 @@ byte ( program_counter *p )
   return (functions[p->pc_func].f_body[p->pc_addr++]);
 }
 
+unsigned char
+peek (pc)
+     program_counter *pc;
+{
+  return (functions[pc->pc_func].f_body[pc->pc_addr]);
+}
 
 /* The routine that actually runs the machine. */
 
@@ -90,7 +97,7 @@ execute (void)
       { /* Print out address and the stack before each instruction.*/
 	int depth; estack_rec *temp = ex_stack;
 	
-	printf ("func=%d addr=%d inst=%c\n",pc.pc_func, pc.pc_addr, inst);
+	printf ("func=%d void=%d addr=%d inst=%c\n", pc.pc_func, functions[pc.pc_func].f_void, pc.pc_addr, inst);
 	if (temp == NULL) printf ("empty stack.\n", inst);
 	else
 	  {
@@ -182,6 +189,24 @@ execute (void)
 	  const_base = i_base;
 	else
 	  const_base = fn_stack->s_val;
+	  output_base = 0;
+	  switch (peek(&pc)) {
+	    case 'x':
+	      output_base= 16;
+	      const_base= 16;
+	      byte(&pc);    /* skip hex indicator 'x' */
+	      break;
+	    case 'b':
+	      output_base= 2;
+	      const_base= 2;
+	      byte(&pc);    /* skip bin indicator 'b' */
+	      break;
+	    case '0':
+	      output_base= 8;
+	      const_base= 8;
+	      byte(&pc);    /* skip oct indicator 'b' */
+	      break;
+	  }
 	if (const_base == 10)
 	  push_b10_const (&pc);
 	else
@@ -256,6 +281,11 @@ execute (void)
       case 'W' : /* Write the value on the top of the stack. */
       case 'P' : /* Write the value on the top of the stack.  No newline. */
 	bc_out_num (ex_stack->s_num, o_base, out_char, std_only);
+	if (output_base) {
+	  out_char ('\t');
+	  bc_out_num (ex_stack->s_num, output_base, out_char, std_only);
+	  output_base= 0;
+	}
 	if (inst == 'W') out_char ('\n');
 	store_var (4);  /* Special variable "last". */
 	fflush (stdout);
@@ -328,6 +358,45 @@ execute (void)
 	bc_sub (_zero_, ex_stack->s_num, &ex_stack->s_num, 0);
 	break;
 
+      case 'z' : /* bitwise Negate top of stack. */
+	bc_bitnot (&ex_stack->s_num, 0);
+	break;
+
+      case '~' : /* bitwise xor */
+	if (check_stack(2))
+	  {
+	    bc_bitxor (ex_stack->s_next->s_num, ex_stack->s_num, &temp_num, 0);
+	    pop();
+	    pop();
+	    push_num (temp_num);
+	    bc_init_num (&temp_num);
+	  }
+
+	break;
+
+      case 'a' : /* bitwise and */
+	if (check_stack(2))
+	  {
+	    bc_bitand (ex_stack->s_next->s_num, ex_stack->s_num, &temp_num, 0);
+	    pop();
+	    pop();
+	    push_num (temp_num);
+	    bc_init_num (&temp_num);
+	  }
+
+	break;
+
+      case 'o' : /* bitwise or. */
+	if (check_stack(2))
+	  {
+	    bc_bitor (ex_stack->s_next->s_num, ex_stack->s_num, &temp_num, 0);
+	    pop();
+	    pop();
+	    push_num (temp_num);
+	    bc_init_num (&temp_num);
+	  }
+	break;
+
       case 'p' : /* Pop the execution stack. */
 	pop ();
 	break;
@@ -365,7 +434,7 @@ execute (void)
 	assign (c_code);
 	break;
 
-      case '&' : /* compare greater than */
+      case '&' : /* logical and */
 	if (check_stack(2))
 	  {
 	    c_code = !bc_is_zero (ex_stack->s_next->s_num)
@@ -375,7 +444,7 @@ execute (void)
 	  }
 	break;
 
-      case '|' : /* compare greater than */
+      case '|' : /* logical or */
 	if (check_stack(2))
 	  {
 	    c_code = !bc_is_zero (ex_stack->s_next->s_num)

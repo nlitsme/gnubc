@@ -283,6 +283,7 @@ limits return(Limits);
 and { return(BITAND); }
 or { return(BITOR); }
 xor { return(BITXOR); }
+"**" { return(FPOW); }
 "*"|"/"|"%"|"&" { yylval.c_value = yytext[0]; return((int)yytext[0]); }
 "="|\+=|-=|\*=|\/=|%=|\^=  { yylval.c_value = yytext[0]; return(ASSIGN_OP); }
 =\+|=-|=\*|=\/|=%|=\^  { 

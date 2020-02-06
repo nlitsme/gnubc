@@ -76,7 +76,7 @@ int cur_func = -1;
    l) void functions.
 */
 
-%token <i_value> ENDOFLINE AND OR NOT BITAND BITOR BITXOR
+%token <i_value> ENDOFLINE AND OR NOT BITAND BITOR BITXOR FPOW
 %token <s_value> STRING NAME NUMBER
 /*     '-', '+' are tokens themselves		*/
 /*     '=', '+=',  '-=', '*=', '/=', '%=', '^=' */
@@ -114,7 +114,7 @@ int cur_func = -1;
 %right ASSIGN_OP
 %left '+' '-'
 %left '*' '/' '%'
-%right '^'
+%right '^' FPOW
 %nonassoc UNARY_MINUS
 %nonassoc INCR_DECR
 
@@ -579,7 +579,7 @@ expression		:  named_expression ASSIGN_OP
 				    generate (">");
 				  break;
 				}
-                              free($2);
+			      free($2);
 			    }
 			| expression '+' expression
 			    {
@@ -623,6 +623,21 @@ expression		:  named_expression ASSIGN_OP
 			      generate ("^");
 			      $$ = ($1 | $3) & ~EX_PAREN;
 			    }
+			| expression FPOW expression
+			    {
+			      int powfn;
+			      if (($1 & EX_VOID) || ($3 & EX_VOID))
+				yyerror ("void expression with **");
+
+			      powfn = lookup(strdup("pow"), FUNCT);
+			      if (!powfn)
+				yyerror ("Can't find pow");
+			      snprintf(genstr, genlen, "C%d,00:", powfn);
+			      generate(genstr);
+			      
+			      $$ = ($1 | $3) & ~EX_PAREN;
+			    }
+
 			| expression BITXOR expression
 			    {
 			      generate ("~");

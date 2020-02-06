@@ -11,6 +11,7 @@ Improvements over the original bc:
  * more windows friendly: support CR in input
  * added 'pi'
  * added 'modinv' and 'gcd' functions.
+ * added '**' operator, for non-integer exponentiation.
 
 
 GNU bc version 1.07:

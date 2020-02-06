@@ -335,6 +335,16 @@ define j(n,x) {
   }
 }
 
+define pow(a,b) {
+    auto s;
+    if (a<0) {
+      /* result would be complex */
+      return sqrt(-1);
+    }
+
+    return e(l(a)*b);
+}
+
 define gcd(a,b) {
   auto px, x, py, y, q, r;
   px = 1; x = 0;

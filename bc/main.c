@@ -241,8 +241,6 @@ main (int argc, char **argv)
       if (line_size < 3 && line_size != 0)
 	line_size = 70;
     }
-  else
-    line_size = 70;
 
   /* Initialize the machine.  */
   init_storage();

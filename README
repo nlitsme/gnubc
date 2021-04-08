@@ -12,7 +12,7 @@ Improvements over the original bc:
  * added 'pi'
  * added 'modinv' and 'gcd' functions.
  * added '**' operator, for non-integer exponentiation.
-
+ * default linesize to '0' instead of the annoyingly short 70.
 
 GNU bc version 1.07:
 
